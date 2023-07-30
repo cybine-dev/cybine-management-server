@@ -1,0 +1,29 @@
+package de.cybine.management.converter;
+
+import de.cybine.management.data.mail.address.*;
+import jakarta.persistence.*;
+
+import java.util.*;
+
+@Converter
+@SuppressWarnings("unused")
+public class AddressActionConverter implements AttributeConverter<AddressAction, String>
+{
+    @Override
+    public String convertToDatabaseColumn(AddressAction attribute)
+    {
+        return attribute.getAction();
+    }
+
+    @Override
+    public AddressAction convertToEntityAttribute(String dbData)
+    {
+        if (dbData == null)
+            return null;
+
+        return Arrays.stream(AddressAction.values())
+                     .filter(item -> item.getAction().equals(dbData))
+                     .findAny()
+                     .orElseThrow();
+    }
+}
