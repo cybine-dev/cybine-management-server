@@ -148,13 +148,13 @@ public class ConverterTreeNode
 
     public boolean shouldBeProcessed(Object obj)
     {
-        ConverterConstraint constraint = this.getConstraint();
-        if (this.getDepth() >= constraint.getMaxDepth().orElse(Integer.MAX_VALUE))
+        if (obj == null)
         {
             return false;
         }
 
-        if (obj == null)
+        ConverterConstraint constraint = this.getConstraint();
+        if (this.getDepth() >= constraint.getMaxDepth().orElse(Integer.MAX_VALUE))
         {
             return false;
         }

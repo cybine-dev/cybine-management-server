@@ -36,15 +36,16 @@ public class ConverterTree
         this.typeConstraints = new HashMap<>(typeConstraints);
 
         ConverterTreeNode rootNode = ConverterTreeNode.builder()
-                .tree(this)
-                .itemType(ConverterTreeRootNodeType.class)
-                .build();
+                                                      .tree(this)
+                                                      .itemType(ConverterTreeRootNodeType.class)
+                                                      .build();
 
         this.rootNodeId = rootNode.getId();
         this.treeNodes.put(rootNode.getId(), rootNode);
 
-        this.keyMappers = new HashMap<>(keyMappers.stream()
-                .collect(Collectors.toMap(ConverterKeyMapper::getType, Function.identity())));
+        this.keyMappers = new HashMap<>(
+                keyMappers.stream().collect(Collectors.toMap(ConverterKeyMapper::getType, Function.identity())));
+        this.keyMappers.put(WithId.class, ConverterKeyMapper.create(WithId.class, WithId::getId));
 
         if (!this.typeConstraints.containsKey(ConverterTreeRootNodeType.class))
         {
@@ -84,18 +85,34 @@ public class ConverterTree
     @SuppressWarnings("unchecked")
     public <T> Optional<Object> findItemId(T item)
     {
-        ConverterKeyMapper<T, ?> keyMapper = (ConverterKeyMapper<T, ?>) this.keyMappers.get(item.getClass());
+        return this.findKeyMapper(item.getClass())
+                   .map(mapper -> ((ConverterKeyMapper<? super T, ?>) mapper).getKey(item));
+    }
+
+    private Optional<ConverterKeyMapper<?, ?>> findKeyMapper(Class<?> itemType)
+    {
+        ConverterKeyMapper<?, ?> keyMapper = this.keyMappers.get(itemType);
         if (keyMapper != null)
         {
-            return Optional.ofNullable(keyMapper.getKey(item));
+            return Optional.of(keyMapper);
         }
 
-        if (item instanceof WithId<?> idItem)
-        {
-            return Optional.ofNullable(idItem.getId());
-        }
+        return this.getKeyMappers()
+                   .values()
+                   .stream()
+                   .filter(item -> item.getType().isAssignableFrom(itemType))
+                   .max(Comparator.comparing(ConverterKeyMapper::getType, this::compareClassSpecificity));
+    }
 
-        return Optional.empty();
+    private int compareClassSpecificity(Class<?> type, Class<?> other)
+    {
+        if (type == other)
+            return 0;
+
+        if (type.isAssignableFrom(other))
+            return -1;
+
+        return 1;
     }
 
     public Optional<ConverterTreeNode> findNode(UUID id)
