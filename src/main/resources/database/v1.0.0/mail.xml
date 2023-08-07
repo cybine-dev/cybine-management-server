@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="mail-setup" author="f.boelter">
+        <createTable tableName="domains">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="domain" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="domains-domain"/>
+            </column>
+            <column name="action" type="VARCHAR(255)" defaultValue="none"/>
+        </createTable>
+
+        <createTable tableName="tls_policies">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="domain_id" type="BIGINT">
+                <constraints nullable="false" references="domains(id)" foreignKeyName="tls_policies_fk-domain_id"
+                             deleteCascade="true" unique="true" uniqueConstraintName="tls_policies-domain"/>
+            </column>
+            <column name="policy" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="params" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createTable tableName="users">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="domain_id" type="BIGINT">
+                <constraints nullable="false" references="domains(id)" foreignKeyName="users_fk-domain_id"
+                             deleteCascade="true"/>
+            </column>
+            <column name="username" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="TINYINT(1)" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="users" columnNames="domain_id, username" constraintName="users-credentials"/>
+
+        <createTable tableName="addresses">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="domain_id" type="BIGINT">
+                <constraints nullable="false" references="domains(id)" foreignKeyName="addresses_fk-domain_id"
+                             deleteCascade="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="action" type="VARCHAR(255)" defaultValue="none">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="addresses" columnNames="domain_id, name" constraintName="addresses-address"/>
+
+        <createTable tableName="mailboxes">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="mailbox-name"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="enabled" type="TINYINT(1)" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quota" type="BIGINT" defaultValueNumeric="102400">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="forwarding">
+            <column name="receiver_address_id" type="BIGINT">
+                <constraints nullable="false" references="addresses(id)"
+                             foreignKeyName="forwarding_fk-receiver_address_id"/>
+            </column>
+            <column name="forwarding_address_id" type="BIGINT">
+                <constraints nullable="false" references="addresses(id)"
+                             foreignKeyName="forwarding_fk-forwarding_address_id"/>
+            </column>
+            <column name="starts_at" type="DATETIME"/>
+            <column name="ends_at" type="DATETIME"/>
+        </createTable>
+
+        <createTable tableName="mailbox_sources">
+            <column name="address_id" type="BIGINT">
+                <constraints nullable="false" references="addresses(id)"
+                             foreignKeyName="mailbox_sources_fk-address-id"/>
+            </column>
+            <column name="mailbox_id" type="BIGINT">
+                <constraints nullable="false" references="mailboxes(id)"
+                             foreignKeyName="mailbox_sources_fk-mailbox-id"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="mailbox_sources" columnNames="address_id, mailbox_id"
+                             constraintName="mailbox_sources-mapping"/>
+
+        <createTable tableName="mailbox_permissions">
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" references="users(id)" foreignKeyName="mailbox_permissions_fk-user_id"/>
+            </column>
+            <column name="mailbox_id" type="BIGINT">
+                <constraints nullable="false" references="mailboxes(id)"
+                             foreignKeyName="mailbox_permissions_fk-mailbox_id"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="mailbox_permissions" columnNames="user_id, mailbox_id"
+                             constraintName="mailbox_permissions-mapping"/>
+
+        <createTable tableName="address_permissions">
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" references="users(id)" foreignKeyName="address_permissions_fk-user_id"/>
+            </column>
+            <column name="address_id" type="BIGINT">
+                <constraints nullable="false" references="addresses(id)"
+                             foreignKeyName="address_permissions_fk-address_id"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="address_permissions" columnNames="user_id, address_id"
+                             constraintName="address_permissions-mapping"/>
+
+        <createIndex tableName="domains" indexName="domains_domain" unique="true">
+            <column name="domain"/>
+        </createIndex>
+        <createIndex tableName="users" indexName="users_credentials" unique="true">
+            <column name="domain_id"/>
+            <column name="username"/>
+        </createIndex>
+        <createIndex tableName="addresses" indexName="addresses_address" unique="true">
+            <column name="domain_id"/>
+            <column name="name"/>
+        </createIndex>
+        <createIndex tableName="forwarding" indexName="forwarding_receiver">
+            <column name="receiver_address_id"/>
+        </createIndex>
+        <createIndex tableName="mailbox_sources" indexName="mailbox_sources_address">
+            <column name="address_id"/>
+        </createIndex>
+        <createIndex tableName="mailbox_permissions" indexName="mailbox_permissions_user">
+            <column name="user_id"/>
+        </createIndex>
+        <createIndex tableName="address_permissions" indexName="address_permissions_user">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createView viewName="active_forwarding" replaceIfExists="true">
+            <![CDATA[
+                SELECT DISTINCT
+                    source.id               AS source_id,
+                    source.name             AS source_name,
+                    source_domain.domain    AS source_domain,
+                    target.name             AS target_name,
+                    target_domain.domain    AS target_domain
+                FROM forwarding
+                JOIN addresses source
+                    ON forwarding.receiver_address_id = source.id
+                JOIN domains source_domain
+                    ON source_domain.id = source.domain_id
+                JOIN addresses target
+                    ON forwarding.forwarding_address_id = target.id
+                JOIN domains target_domain
+                    ON target_domain.id = target.domain_id
+                WHERE source_domain.action = 'manage'
+                  AND ((forwarding.starts_at IS NULL AND forwarding.ends_at IS NULL)
+                   OR (forwarding.starts_at  IS NULL AND NOW() <= forwarding.ends_at)
+                   OR (forwarding.ends_at    IS NULL AND NOW() >= forwarding.starts_at)
+                   OR (forwarding.starts_at  IS NOT NULL AND
+                       forwarding.ends_at    IS NOT NULL AND
+                       NOW() BETWEEN forwarding.starts_at AND forwarding.ends_at))
+            ]]>
+        </createView>
+
+        <createView viewName="active_mailboxes" replaceIfExists="true">
+            <![CDATA[
+                SELECT addresses.id          AS source_id,
+                       addresses.name        AS source_name,
+                       domains.domain        AS source_domain,
+                       mailboxes.name        AS mailbox_name,
+                       mailboxes.description AS mailbox_description,
+                       mailboxes.quota       AS mailbox_quota
+                FROM mailboxes
+                JOIN mailbox_sources
+                    ON mailbox_sources.mailbox_id = mailboxes.id
+                JOIN addresses
+                    ON addresses.id = mailbox_sources.address_id
+                JOIN domains
+                    ON domains.id = addresses.domain_id
+                WHERE mailboxes.enabled = 1
+                  AND domains.action = 'manage'
+            ]]>
+        </createView>
+
+        <createView viewName="active_destinations" replaceIfExists="true">
+            <![CDATA[
+                SELECT  addresses.id                         AS id,
+                        addresses.name                       AS source_name,
+                        domains.domain                       AS source_domain,
+                        active_forwarding.target_name        AS target_name,
+                        active_forwarding.target_domain      AS target_domain,
+                        active_mailboxes.mailbox_name        AS mailbox_name,
+                        active_mailboxes.mailbox_description AS mailbox_description,
+                        active_mailboxes.mailbox_quota       AS mailbox_quota,
+                        CASE
+                            WHEN active_forwarding.source_id IS NOT NULL THEN 'FORWARDING'
+                            WHEN active_mailboxes.source_id IS NOT NULL THEN 'MAILBOX'
+                        END AS type
+                FROM addresses
+                JOIN domains
+                    ON domains.id = addresses.domain_id
+                LEFT JOIN active_forwarding
+                    ON active_forwarding.source_id = addresses.id
+                LEFT JOIN active_mailboxes
+                    ON active_mailboxes.source_id = addresses.id
+                WHERE domains.action = 'manage'
+                  AND (active_forwarding.source_id IS NOT NULL
+                   OR  active_mailboxes.source_id IS NOT NULL)
+            ]]>
+        </createView>
+
+        <createView viewName="sender_permissions" replaceIfExists="true">
+            <![CDATA[
+                SELECT  users.username          AS user_name,
+                        user_domain.domain      AS user_domain,
+                        addresses.name          AS address_name,
+                        address_domain.domain   AS address_domain
+                FROM users
+                LEFT JOIN domains user_domain
+                    ON user_domain.id = users.domain_id
+                JOIN address_permissions
+                    ON address_permissions.user_id = users.id
+                JOIN addresses
+                    ON addresses.id = address_permissions.address_id
+                JOIN domains address_domain
+                    ON address_domain.id = addresses.domain_id
+                WHERE address_domain.action IN ('manage', 'send_only')
+                  AND addresses.action = 'send'
+                  AND users.enabled = 1
+            ]]>
+        </createView>
+
+        <createView viewName="mailbox_access" replaceIfExists="true">
+            <![CDATA[
+                SELECT users.username   AS user_name,
+                       domains.domain   AS user_domain,
+                       mailboxes.name   AS mailbox_name,
+                       mailboxes.quota  AS mailbox_quota
+                FROM users
+                JOIN domains
+                    ON domains.id = users.id
+                JOIN mailbox_permissions
+                    ON mailbox_permissions.user_id = users.id
+                JOIN mailboxes
+                    ON mailboxes.id = mailbox_permissions.mailbox_id
+                WHERE mailboxes.enabled = 1
+                  AND users.enabled = 1
+            ]]>
+        </createView>
+    </changeSet>
+</databaseChangeLog>
