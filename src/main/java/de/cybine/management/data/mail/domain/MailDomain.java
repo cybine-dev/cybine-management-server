@@ -71,7 +71,7 @@ public class MailDomain implements WithId<MailDomainId>
 
     @JsonProperty("address_ids")
     @JsonView(Views.Simple.class)
-    public Optional<Set<Long>> getAddressIds( )
+    public Optional<Set<MailAddressId>> getAddressIds( )
     {
         return this.getAddresses().map(items -> items.stream().map(WithId::getId).collect(Collectors.toSet()));
     }
