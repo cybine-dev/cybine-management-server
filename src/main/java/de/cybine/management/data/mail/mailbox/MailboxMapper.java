@@ -2,6 +2,7 @@ package de.cybine.management.data.mail.mailbox;
 
 import de.cybine.management.data.mail.address.*;
 import de.cybine.management.data.mail.user.*;
+import de.cybine.management.data.util.primitive.*;
 import de.cybine.management.util.converter.*;
 import jakarta.enterprise.context.*;
 import lombok.*;
@@ -32,7 +33,7 @@ public class MailboxMapper implements EntityMapper<MailboxEntity, Mailbox>
             return null;
 
         return MailboxEntity.builder()
-                            .id(data.getId())
+                            .id(data.findId().map(Id::getValue).orElse(null))
                             .name(data.getName())
                             .description(data.getDescription())
                             .isEnabled(data.isEnabled())
@@ -51,7 +52,7 @@ public class MailboxMapper implements EntityMapper<MailboxEntity, Mailbox>
             return null;
 
         return Mailbox.builder()
-                      .id(entity.getId())
+                      .id(MailboxId.of(entity.getId()))
                       .name(entity.getName())
                       .description(entity.getDescription())
                       .isEnabled(entity.getIsEnabled())
@@ -62,13 +63,13 @@ public class MailboxMapper implements EntityMapper<MailboxEntity, Mailbox>
                       .build();
     }
 
-    private EntityMapper<AddressEntity, Address> getAddressMapper( )
+    private EntityMapper<MailAddressEntity, MailAddress> getAddressMapper( )
     {
-        return this.registry.findEntityMapper(AddressEntity.class, Address.class).orElseThrow();
+        return this.registry.findEntityMapper(MailAddressEntity.class, MailAddress.class).orElseThrow();
     }
 
-    private EntityMapper<UserEntity, User> getUserMapper( )
+    private EntityMapper<MailUserEntity, MailUser> getUserMapper( )
     {
-        return this.registry.findEntityMapper(UserEntity.class, User.class).orElseThrow();
+        return this.registry.findEntityMapper(MailUserEntity.class, MailUser.class).orElseThrow();
     }
 }

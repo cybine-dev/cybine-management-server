@@ -7,21 +7,21 @@ import java.util.*;
 
 @Converter
 @SuppressWarnings("unused")
-public class DomainActionConverter implements AttributeConverter<DomainAction, String>
+public class DomainActionConverter implements AttributeConverter<MailDomainAction, String>
 {
     @Override
-    public String convertToDatabaseColumn(DomainAction attribute)
+    public String convertToDatabaseColumn(MailDomainAction attribute)
     {
         return attribute.getAction();
     }
 
     @Override
-    public DomainAction convertToEntityAttribute(String dbData)
+    public MailDomainAction convertToEntityAttribute(String dbData)
     {
         if (dbData == null)
             return null;
 
-        return Arrays.stream(DomainAction.values())
+        return Arrays.stream(MailDomainAction.values())
                      .filter(item -> item.getAction().equals(dbData))
                      .findAny()
                      .orElseThrow();

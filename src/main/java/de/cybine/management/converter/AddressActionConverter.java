@@ -7,21 +7,21 @@ import java.util.*;
 
 @Converter
 @SuppressWarnings("unused")
-public class AddressActionConverter implements AttributeConverter<AddressAction, String>
+public class AddressActionConverter implements AttributeConverter<MailAddressAction, String>
 {
     @Override
-    public String convertToDatabaseColumn(AddressAction attribute)
+    public String convertToDatabaseColumn(MailAddressAction attribute)
     {
         return attribute.getAction();
     }
 
     @Override
-    public AddressAction convertToEntityAttribute(String dbData)
+    public MailAddressAction convertToEntityAttribute(String dbData)
     {
         if (dbData == null)
             return null;
 
-        return Arrays.stream(AddressAction.values())
+        return Arrays.stream(MailAddressAction.values())
                      .filter(item -> item.getAction().equals(dbData))
                      .findAny()
                      .orElseThrow();

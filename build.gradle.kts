@@ -44,6 +44,8 @@ dependencies {
 
     implementation("io.quarkiverse.amazonservices:quarkus-amazon-s3")
 
+    implementation("org.mindrot:jbcrypt:0.4")
+
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
 }

@@ -3,8 +3,8 @@ package de.cybine.management.config;
 import de.cybine.management.exception.*;
 import io.quarkus.liquibase.*;
 import io.quarkus.runtime.*;
+import jakarta.annotation.*;
 import jakarta.enterprise.context.*;
-import jakarta.enterprise.event.*;
 import liquibase.*;
 import liquibase.changelog.*;
 import liquibase.exception.*;
@@ -12,13 +12,15 @@ import lombok.*;
 import lombok.extern.java.*;
 
 @Log
-@ApplicationScoped
+@Startup
+@Dependent
 @RequiredArgsConstructor
 public class LiquibaseConfig
 {
     private final LiquibaseFactory factory;
 
-    public void setup(@Observes StartupEvent event)
+    @PostConstruct
+    public void setup( )
     {
         try
         {

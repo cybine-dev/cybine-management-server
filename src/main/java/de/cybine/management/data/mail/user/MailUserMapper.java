@@ -1,64 +1,68 @@
 package de.cybine.management.data.mail.user;
 
 import de.cybine.management.data.mail.domain.*;
+import de.cybine.management.data.util.*;
+import de.cybine.management.data.util.password.*;
+import de.cybine.management.data.util.primitive.*;
 import de.cybine.management.util.converter.*;
 import jakarta.enterprise.context.*;
 import lombok.*;
 
 @ApplicationScoped
 @RequiredArgsConstructor
-public class MailUserMapper implements EntityMapper<UserEntity, User>
+public class MailUserMapper implements EntityMapper<MailUserEntity, MailUser>
 {
     private final ConverterRegistry registry;
 
     @Override
-    public Class<UserEntity> getEntityType( )
+    public Class<MailUserEntity> getEntityType( )
     {
-        return UserEntity.class;
+        return MailUserEntity.class;
     }
 
     @Override
-    public Class<User> getDataType( )
+    public Class<MailUser> getDataType( )
     {
-        return User.class;
+        return MailUser.class;
     }
 
     @Override
-    public UserEntity toEntity(User data, ConverterTreeNode parentNode)
+    public MailUserEntity toEntity(MailUser data, ConverterTreeNode parentNode)
     {
         ConverterTreeNode node = parentNode.process(data).orElse(null);
         if (node == null)
             return null;
 
-        return UserEntity.builder()
-                         .id(data.getId())
-                         .domainId(data.getDomainId())
-                         .domain(this.getDomainMapper().toEntity(data.getDomain().orElse(null), node))
-                         .username(data.getUsername())
-                         .passwordHash(data.getPasswordHash())
-                         .isEnabled(data.isEnabled())
-                         .build();
+        return MailUserEntity.builder()
+                             .id(data.findId().map(Id::getValue).orElse(null))
+                             .domainId(data.getDomainId().getValue())
+                             .domain(this.getDomainMapper().toEntity(data.getDomain().orElse(null), node))
+                             .username(data.getUsername().asString())
+                             .passwordHash(data.getPasswordHash().asString())
+                             .isEnabled(data.isEnabled())
+                             .build();
     }
 
     @Override
-    public User toData(UserEntity entity, ConverterTreeNode parentNode)
+    public MailUser toData(MailUserEntity entity, ConverterTreeNode parentNode)
     {
         ConverterTreeNode node = parentNode.process(entity).orElse(null);
         if (node == null)
             return null;
 
-        return User.builder()
-                   .id(entity.getId())
-                   .domainId(entity.getDomainId())
-                   .domain(EntityMapper.mapInitialized(entity::getDomain, null, this.getDomainMapper()::toData, node))
-                   .username(entity.getUsername())
-                   .passwordHash(entity.getPasswordHash())
-                   .isEnabled(entity.getIsEnabled())
-                   .build();
+        return MailUser.builder()
+                       .id(MailUserId.of(entity.getId()))
+                       .domainId(MailDomainId.of(entity.getDomainId()))
+                       .domain(EntityMapper.mapInitialized(entity::getDomain, null, this.getDomainMapper()::toData,
+                               node))
+                       .username(Username.of(entity.getUsername()))
+                       .passwordHash(BCryptPasswordHash.of(entity.getPasswordHash()))
+                       .isEnabled(entity.getIsEnabled())
+                       .build();
     }
 
-    private EntityMapper<DomainEntity, Domain> getDomainMapper( )
+    private EntityMapper<MailDomainEntity, MailDomain> getDomainMapper( )
     {
-        return this.registry.findEntityMapper(DomainEntity.class, Domain.class).orElseThrow();
+        return this.registry.findEntityMapper(MailDomainEntity.class, MailDomain.class).orElseThrow();
     }
 }

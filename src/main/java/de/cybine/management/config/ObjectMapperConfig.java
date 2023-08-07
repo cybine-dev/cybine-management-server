@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonInclude.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.jdk8.*;
 import io.quarkus.jackson.*;
+import io.quarkus.runtime.*;
 import jakarta.enterprise.context.*;
 
-@ApplicationScoped
+@Startup
+@Dependent
 public class ObjectMapperConfig implements ObjectMapperCustomizer
 {
     @Override

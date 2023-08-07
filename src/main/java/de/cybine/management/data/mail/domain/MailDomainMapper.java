@@ -3,77 +3,78 @@ package de.cybine.management.data.mail.domain;
 import de.cybine.management.data.mail.address.*;
 import de.cybine.management.data.mail.tls.*;
 import de.cybine.management.data.mail.user.*;
+import de.cybine.management.data.util.*;
+import de.cybine.management.data.util.primitive.*;
 import de.cybine.management.util.converter.*;
 import lombok.*;
 
 @Getter
 @RequiredArgsConstructor
-public class MailDomainMapper implements EntityMapper<DomainEntity, Domain>
+public class MailDomainMapper implements EntityMapper<MailDomainEntity, MailDomain>
 {
     private final ConverterRegistry registry;
 
     @Override
-    public Class<DomainEntity> getEntityType( )
+    public Class<MailDomainEntity> getEntityType( )
     {
-        return DomainEntity.class;
+        return MailDomainEntity.class;
     }
 
     @Override
-    public Class<Domain> getDataType( )
+    public Class<MailDomain> getDataType( )
     {
-        return Domain.class;
+        return MailDomain.class;
     }
 
     @Override
-    public DomainEntity toEntity(Domain data, ConverterTreeNode parentNode)
+    public MailDomainEntity toEntity(MailDomain data, ConverterTreeNode parentNode)
     {
         ConverterTreeNode node = parentNode.process(data).orElse(null);
         if (node == null)
             return null;
 
-        return DomainEntity.builder()
-                           .id(data.getId())
-                           .domain(data.getDomain())
-                           .action(data.getAction())
-                           .tlsPolicy(this.getTlsPolicyMapper().toEntity(data.getTlsPolicy().orElse(null), node))
-                           .users(this.getUserMapper().toEntitySet(data.getUsers().orElse(null), node))
-                           .addresses(this.getAddressMapper().toEntitySet(data.getAddresses().orElse(null), node))
-                           .build();
+        return MailDomainEntity.builder()
+                               .id(data.findId().map(Id::getValue).orElse(null))
+                               .domain(data.getDomain().asString())
+                               .action(data.getAction())
+                               .tlsPolicy(this.getTlsPolicyMapper().toEntity(data.getTlsPolicy().orElse(null), node))
+                               .users(this.getUserMapper().toEntitySet(data.getUsers().orElse(null), node))
+                               .addresses(this.getAddressMapper().toEntitySet(data.getAddresses().orElse(null), node))
+                               .build();
     }
 
     @Override
-    public Domain toData(DomainEntity entity, ConverterTreeNode parentNode)
+    public MailDomain toData(MailDomainEntity entity, ConverterTreeNode parentNode)
     {
         ConverterTreeNode node = parentNode.process(entity).orElse(null);
         if (node == null)
             return null;
 
-        return Domain.builder()
-                     .id(entity.getId())
-                     .domain(entity.getDomain())
-                     .action(entity.getAction())
-                     .tlsPolicy(
-                             EntityMapper.mapInitialized(entity::getTlsPolicy, null, this.getTlsPolicyMapper()::toData,
-                                     node))
-                     .users(EntityMapper.mapInitialized(entity::getUsers, null, this.getUserMapper()::toDataSet, node))
-                     .addresses(
-                             EntityMapper.mapInitialized(entity::getAddresses, null, this.getAddressMapper()::toDataSet,
-                                     node))
-                     .build();
+        return MailDomain.builder()
+                         .id(MailDomainId.of(entity.getId()))
+                         .domain(Domain.of(entity.getDomain()))
+                         .action(entity.getAction())
+                         .tlsPolicy(EntityMapper.mapInitialized(entity::getTlsPolicy, null,
+                                 this.getTlsPolicyMapper()::toData, node))
+                         .users(EntityMapper.mapInitialized(entity::getUsers, null, this.getUserMapper()::toDataSet,
+                                 node))
+                         .addresses(EntityMapper.mapInitialized(entity::getAddresses, null,
+                                 this.getAddressMapper()::toDataSet, node))
+                         .build();
     }
 
-    private EntityMapper<TLSPolicyEntity, TLSPolicy> getTlsPolicyMapper( )
+    private EntityMapper<MailTLSPolicyEntity, MailTLSPolicy> getTlsPolicyMapper( )
     {
-        return this.registry.findEntityMapper(TLSPolicyEntity.class, TLSPolicy.class).orElseThrow();
+        return this.registry.findEntityMapper(MailTLSPolicyEntity.class, MailTLSPolicy.class).orElseThrow();
     }
 
-    private EntityMapper<UserEntity, User> getUserMapper( )
+    private EntityMapper<MailUserEntity, MailUser> getUserMapper( )
     {
-        return this.registry.findEntityMapper(UserEntity.class, User.class).orElseThrow();
+        return this.registry.findEntityMapper(MailUserEntity.class, MailUser.class).orElseThrow();
     }
 
-    private EntityMapper<AddressEntity, Address> getAddressMapper( )
+    private EntityMapper<MailAddressEntity, MailAddress> getAddressMapper( )
     {
-        return this.registry.findEntityMapper(AddressEntity.class, Address.class).orElseThrow();
+        return this.registry.findEntityMapper(MailAddressEntity.class, MailAddress.class).orElseThrow();
     }
 }

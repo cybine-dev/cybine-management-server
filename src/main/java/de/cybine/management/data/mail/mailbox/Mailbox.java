@@ -15,10 +15,10 @@ import java.util.stream.*;
 @Builder(builderClassName = "Builder")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Mailbox implements WithId<Long>
+public class Mailbox implements WithId<MailboxId>
 {
     @JsonProperty("id")
-    private final Long id;
+    private final MailboxId id;
 
     @JsonProperty("name")
     private final String name;
@@ -34,13 +34,13 @@ public class Mailbox implements WithId<Long>
 
     @JsonView(Views.Extended.class)
     @JsonProperty("source_addresses")
-    private final Set<Address> sourceAddresses;
+    private final Set<MailAddress> sourceAddresses;
 
     @JsonProperty("users")
     @JsonView(Views.Extended.class)
-    private final Set<User> users;
+    private final Set<MailUser> users;
 
-    public Optional<Set<Address>> getSourceAddresses( )
+    public Optional<Set<MailAddress>> getSourceAddresses( )
     {
         return Optional.ofNullable(this.sourceAddresses);
     }
@@ -52,14 +52,14 @@ public class Mailbox implements WithId<Long>
         return this.getSourceAddresses().map(items -> items.stream().map(WithId::getId).collect(Collectors.toSet()));
     }
 
-    public Optional<Set<User>> getUsers( )
+    public Optional<Set<MailUser>> getUsers( )
     {
         return Optional.ofNullable(this.users);
     }
 
     @JsonProperty("user_ids")
     @JsonView(Views.Simple.class)
-    public Optional<Set<Long>> getUserIds( )
+    public Optional<Set<MailUserId>> getUserIds( )
     {
         return this.getUsers().map(items -> items.stream().map(WithId::getId).collect(Collectors.toSet()));
     }

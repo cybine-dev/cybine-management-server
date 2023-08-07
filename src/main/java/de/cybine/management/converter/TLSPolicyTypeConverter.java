@@ -7,21 +7,21 @@ import java.util.*;
 
 @Converter
 @SuppressWarnings("unused")
-public class TLSPolicyTypeConverter implements AttributeConverter<TLSPolicyType, String>
+public class TLSPolicyTypeConverter implements AttributeConverter<MailTLSPolicyType, String>
 {
     @Override
-    public String convertToDatabaseColumn(TLSPolicyType attribute)
+    public String convertToDatabaseColumn(MailTLSPolicyType attribute)
     {
         return attribute.getType();
     }
 
     @Override
-    public TLSPolicyType convertToEntityAttribute(String dbData)
+    public MailTLSPolicyType convertToEntityAttribute(String dbData)
     {
         if (dbData == null)
             return null;
 
-        return Arrays.stream(TLSPolicyType.values())
+        return Arrays.stream(MailTLSPolicyType.values())
                      .filter(item -> item.getType().equals(dbData))
                      .findAny()
                      .orElseThrow();

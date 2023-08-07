@@ -8,17 +8,19 @@ import de.cybine.management.data.mail.tls.*;
 import de.cybine.management.data.mail.user.*;
 import de.cybine.management.util.converter.*;
 import io.quarkus.runtime.*;
+import jakarta.annotation.*;
 import jakarta.enterprise.context.*;
-import jakarta.enterprise.event.*;
 import lombok.*;
 
-@ApplicationScoped
+@Startup
+@Dependent
 @RequiredArgsConstructor
 public class ConverterConfig
 {
     private final ConverterRegistry registry;
 
-    public void setup(@Observes StartupEvent event)
+    @PostConstruct
+    public void setup( )
     {
         this.registry.addEntityMapper(new MailAddressMapper(this.registry));
         this.registry.addEntityMapper(new MailDomainMapper(this.registry));

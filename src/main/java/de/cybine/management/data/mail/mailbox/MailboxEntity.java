@@ -23,8 +23,8 @@ public class MailboxEntity extends PanacheEntityBase implements Serializable, Wi
 {
     @Id
     @NotNull
-    @GeneratedValue
     @EqualsAndHashCode.Include
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = MailboxEntity_.ID_COLUMN, nullable = false, unique = true)
     private Long id;
 
@@ -50,12 +50,12 @@ public class MailboxEntity extends PanacheEntityBase implements Serializable, Wi
     @JoinTable(name = MailboxSource_.TABLE,
                joinColumns = @JoinColumn(name = MailboxSource_.MAILBOX_ID_COLUMN),
                inverseJoinColumns = @JoinColumn(name = MailboxSource_.ADDRESS_ID_COLUMN))
-    private Set<AddressEntity> sourceAddresses;
+    private Set<MailAddressEntity> sourceAddresses;
 
     @NotNull
     @ManyToMany
     @JoinTable(name = MailboxPermission_.TABLE,
                joinColumns = @JoinColumn(name = MailboxPermission_.MAILBOX_ID_COLUMN),
                inverseJoinColumns = @JoinColumn(name = MailboxPermission_.USER_ID_COLUMN))
-    private Set<UserEntity> users;
+    private Set<MailUserEntity> users;
 }

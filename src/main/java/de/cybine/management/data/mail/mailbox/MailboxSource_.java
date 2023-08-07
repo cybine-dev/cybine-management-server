@@ -1,10 +1,13 @@
 package de.cybine.management.data.mail.mailbox;
 
-@SuppressWarnings("unused")
-public interface MailboxSource_
-{
-    String TABLE = "mailbox_sources";
+import lombok.experimental.*;
 
-    String ADDRESS_ID_COLUMN = "address_id";
-    String MAILBOX_ID_COLUMN = "mailbox_id";
+@UtilityClass
+@SuppressWarnings("unused")
+public class MailboxSource_
+{
+    public static final String TABLE = "mailbox_sources";
+
+    public static final String ADDRESS_ID_COLUMN = "address_id";
+    public static final String MAILBOX_ID_COLUMN = "mailbox_id";
 }
