@@ -3,15 +3,9 @@ package de.cybine.management.data.mail.tls;
 import de.cybine.management.data.mail.domain.*;
 import de.cybine.management.data.util.primitive.*;
 import de.cybine.management.util.converter.*;
-import jakarta.enterprise.context.*;
-import lombok.*;
 
-@ApplicationScoped
-@RequiredArgsConstructor
 public class MailTLSPolicyMapper implements EntityMapper<MailTLSPolicyEntity, MailTLSPolicy>
 {
-    private final ConverterRegistry registry;
-
     @Override
     public Class<MailTLSPolicyEntity> getEntityType( )
     {
@@ -25,40 +19,28 @@ public class MailTLSPolicyMapper implements EntityMapper<MailTLSPolicyEntity, Ma
     }
 
     @Override
-    public MailTLSPolicyEntity toEntity(MailTLSPolicy data, ConverterTreeNode parentNode)
+    public MailTLSPolicyEntity toEntity(MailTLSPolicy data, ConversionHelper helper)
     {
-        ConverterTreeNode node = parentNode.process(data).orElse(null);
-        if (node == null)
-            return null;
-
         return MailTLSPolicyEntity.builder()
                                   .id(data.findId().map(Id::getValue).orElse(null))
                                   .domainId(data.getDomainId().getValue())
-                                  .domain(this.getDomainMapper().toEntity(data.getDomain().orElse(null), node))
+                                  .domain(helper.toItem(MailDomain.class, MailDomainEntity.class)
+                                                .apply(data.getDomain().orElse(null)))
                                   .type(data.getType())
                                   .params(data.getParams())
                                   .build();
     }
 
     @Override
-    public MailTLSPolicy toData(MailTLSPolicyEntity entity, ConverterTreeNode parentNode)
+    public MailTLSPolicy toData(MailTLSPolicyEntity entity, ConversionHelper helper)
     {
-        ConverterTreeNode node = parentNode.process(entity).orElse(null);
-        if (node == null)
-            return null;
-
         return MailTLSPolicy.builder()
                             .id(MailTLSPolicyId.of(entity.getId()))
                             .domainId(MailDomainId.of(entity.getDomainId()))
-                            .domain(EntityMapper.mapInitialized(entity::getDomain, null, this.getDomainMapper()::toData,
-                                    node))
+                            .domain(EntityMapper.mapInitialized(entity::getDomain,
+                                    helper.toItem(MailDomainEntity.class, MailDomain.class)))
                             .type(entity.getType())
                             .params(entity.getParams())
                             .build();
-    }
-
-    private EntityMapper<MailDomainEntity, MailDomain> getDomainMapper( )
-    {
-        return this.registry.findEntityMapper(MailDomainEntity.class, MailDomain.class).orElseThrow();
     }
 }

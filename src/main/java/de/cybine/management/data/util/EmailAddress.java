@@ -7,8 +7,10 @@ import lombok.*;
 import org.eclipse.microprofile.openapi.annotations.enums.*;
 import org.eclipse.microprofile.openapi.annotations.media.*;
 
+import java.util.*;
+
 @Data
-@AllArgsConstructor(access = AccessLevel.NONE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Schema(type = SchemaType.STRING, implementation = String.class)
 public class EmailAddress
 {
@@ -17,22 +19,35 @@ public class EmailAddress
     private final String value;
 
     @Schema(hidden = true)
-    private final String    namePart;
+    private final String namePart;
 
     @Schema(hidden = true)
     private final Hyperlink domainPart;
 
-    private EmailAddress(String value)
+    public static EmailAddress of(String value)
     {
-        this.value = value;
         if (value.length() > 320)
             throw new MailValidationException("Address is longer than 320 characters");
 
-        this.domainPart = this.getDomain(value);
-        this.namePart = this.getName(value, this.domainPart);
+        Hyperlink address = EmailAddress.getDomain(value);
+        String name = EmailAddress.getName(value, address);
+
+        return new EmailAddress(value, name, address);
     }
 
-    private Hyperlink getDomain(String email)
+    public static Optional<EmailAddress> safeOf(String value)
+    {
+        try
+        {
+            return Optional.of(EmailAddress.of(value));
+        }
+        catch (IllegalArgumentException ignored)
+        {
+            return Optional.empty();
+        }
+    }
+
+    private static Hyperlink getDomain(String email)
     {
         if (!email.contains("@"))
             throw new MailValidationException("No at-sign found");
@@ -72,14 +87,26 @@ public class EmailAddress
             throw new MailValidationException("No unescaped at-sign found");
 
         String[] parts = email.split("@");
-        String domain = parts[ parts.length - 1 ];
-        if (domain.length() > 255)
-            throw new MailValidationException("Domain-part longer than 255 characters");
+        String address = parts[ parts.length - 1 ];
+        if (address.startsWith("[") && address.endsWith("]"))
+        {
+            String ipAddress = address.substring(1, address.length() - 1);
 
-        return Domain.of(domain);
+            IPv4Address iPv4Address = IPv4Address.safeOf(ipAddress).orElse(null);
+            if (iPv4Address != null)
+                return iPv4Address;
+
+            IPv6Address iPv6Address = IPv6Address.safeOf(ipAddress).orElse(null);
+            if (iPv6Address != null)
+                return iPv6Address;
+
+            throw new MailValidationException("Unknown IP-Address format");
+        }
+
+        return Domain.of(address);
     }
 
-    private String getName(String email, Hyperlink domain)
+    private static String getName(String email, Hyperlink domain)
     {
         String name = email.substring(0, email.length() - domain.asString().length() - 1);
         if (name.length() > 64)
@@ -133,10 +160,5 @@ public class EmailAddress
             throw new MailValidationException("Escape sequence not ended");
 
         return name;
-    }
-
-    public static EmailAddress of(String email)
-    {
-        return new EmailAddress(email);
     }
 }

@@ -4,15 +4,9 @@ import de.cybine.management.data.mail.address.*;
 import de.cybine.management.data.mail.user.*;
 import de.cybine.management.data.util.primitive.*;
 import de.cybine.management.util.converter.*;
-import jakarta.enterprise.context.*;
-import lombok.*;
 
-@ApplicationScoped
-@RequiredArgsConstructor
 public class MailboxMapper implements EntityMapper<MailboxEntity, Mailbox>
 {
-    private final ConverterRegistry registry;
-
     @Override
     public Class<MailboxEntity> getEntityType( )
     {
@@ -26,50 +20,34 @@ public class MailboxMapper implements EntityMapper<MailboxEntity, Mailbox>
     }
 
     @Override
-    public MailboxEntity toEntity(Mailbox data, ConverterTreeNode parentNode)
+    public MailboxEntity toEntity(Mailbox data, ConversionHelper helper)
     {
-        ConverterTreeNode node = parentNode.process(data).orElse(null);
-        if (node == null)
-            return null;
-
         return MailboxEntity.builder()
                             .id(data.findId().map(Id::getValue).orElse(null))
                             .name(data.getName())
                             .description(data.getDescription())
                             .isEnabled(data.isEnabled())
                             .quota(data.getQuota())
-                            .sourceAddresses(
-                                    this.getAddressMapper().toEntitySet(data.getSourceAddresses().orElse(null), node))
-                            .users(this.getUserMapper().toEntitySet(data.getUsers().orElse(null), node))
+                            .sourceAddresses(helper.toSet(MailAddress.class, MailAddressEntity.class)
+                                                   .apply(data.getSourceAddresses().orElse(null)))
+                            .users(helper.toSet(MailUser.class, MailUserEntity.class)
+                                         .apply(data.getUsers().orElse(null)))
                             .build();
     }
 
     @Override
-    public Mailbox toData(MailboxEntity entity, ConverterTreeNode parentNode)
+    public Mailbox toData(MailboxEntity entity, ConversionHelper helper)
     {
-        ConverterTreeNode node = parentNode.process(entity).orElse(null);
-        if (node == null)
-            return null;
-
         return Mailbox.builder()
                       .id(MailboxId.of(entity.getId()))
                       .name(entity.getName())
                       .description(entity.getDescription())
                       .isEnabled(entity.getIsEnabled())
                       .quota(entity.getQuota())
-                      .sourceAddresses(EntityMapper.mapInitialized(entity::getSourceAddresses, null,
-                              this.getAddressMapper()::toDataSet, node))
-                      .users(EntityMapper.mapInitialized(entity::getUsers, null, this.getUserMapper()::toDataSet, node))
+                      .sourceAddresses(EntityMapper.mapInitialized(entity::getSourceAddresses,
+                              helper.toSet(MailAddressEntity.class, MailAddress.class)))
+                      .users(EntityMapper.mapInitialized(entity::getUsers,
+                              helper.toSet(MailUserEntity.class, MailUser.class)))
                       .build();
-    }
-
-    private EntityMapper<MailAddressEntity, MailAddress> getAddressMapper( )
-    {
-        return this.registry.findEntityMapper(MailAddressEntity.class, MailAddress.class).orElseThrow();
-    }
-
-    private EntityMapper<MailUserEntity, MailUser> getUserMapper( )
-    {
-        return this.registry.findEntityMapper(MailUserEntity.class, MailUser.class).orElseThrow();
     }
 }

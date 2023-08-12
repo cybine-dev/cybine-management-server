@@ -12,11 +12,11 @@ public class TypeConverter<I, O> implements Converter<I, O>
     private final Class<O> outputType;
 
     @Getter(AccessLevel.NONE)
-    private final BiFunction<I, ConverterTreeNode, O> conversionFunction;
+    private final BiFunction<I, ConversionHelper, O> conversionFunction;
 
     @Override
-    public O convert(I input, ConverterTreeNode parentNode)
+    public O convert(I input, ConversionHelper helper)
     {
-        return this.conversionFunction.apply(input, parentNode);
+        return this.conversionFunction.apply(input, helper);
     }
 }

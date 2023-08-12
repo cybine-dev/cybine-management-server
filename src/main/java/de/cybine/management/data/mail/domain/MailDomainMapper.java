@@ -6,14 +6,9 @@ import de.cybine.management.data.mail.user.*;
 import de.cybine.management.data.util.*;
 import de.cybine.management.data.util.primitive.*;
 import de.cybine.management.util.converter.*;
-import lombok.*;
 
-@Getter
-@RequiredArgsConstructor
 public class MailDomainMapper implements EntityMapper<MailDomainEntity, MailDomain>
 {
-    private final ConverterRegistry registry;
-
     @Override
     public Class<MailDomainEntity> getEntityType( )
     {
@@ -27,54 +22,34 @@ public class MailDomainMapper implements EntityMapper<MailDomainEntity, MailDoma
     }
 
     @Override
-    public MailDomainEntity toEntity(MailDomain data, ConverterTreeNode parentNode)
+    public MailDomainEntity toEntity(MailDomain data, ConversionHelper helper)
     {
-        ConverterTreeNode node = parentNode.process(data).orElse(null);
-        if (node == null)
-            return null;
-
         return MailDomainEntity.builder()
                                .id(data.findId().map(Id::getValue).orElse(null))
                                .domain(data.getDomain().asString())
                                .action(data.getAction())
-                               .tlsPolicy(this.getTlsPolicyMapper().toEntity(data.getTlsPolicy().orElse(null), node))
-                               .users(this.getUserMapper().toEntitySet(data.getUsers().orElse(null), node))
-                               .addresses(this.getAddressMapper().toEntitySet(data.getAddresses().orElse(null), node))
+                               .tlsPolicy(helper.toItem(MailTLSPolicy.class, MailTLSPolicyEntity.class)
+                                                .apply(data.getTlsPolicy().orElse(null)))
+                               .users(helper.toSet(MailUser.class, MailUserEntity.class)
+                                            .apply(data.getUsers().orElse(null)))
+                               .addresses(helper.toSet(MailAddress.class, MailAddressEntity.class)
+                                                .apply(data.getAddresses().orElse(null)))
                                .build();
     }
 
     @Override
-    public MailDomain toData(MailDomainEntity entity, ConverterTreeNode parentNode)
+    public MailDomain toData(MailDomainEntity entity, ConversionHelper helper)
     {
-        ConverterTreeNode node = parentNode.process(entity).orElse(null);
-        if (node == null)
-            return null;
-
         return MailDomain.builder()
                          .id(MailDomainId.of(entity.getId()))
                          .domain(Domain.of(entity.getDomain()))
                          .action(entity.getAction())
-                         .tlsPolicy(EntityMapper.mapInitialized(entity::getTlsPolicy, null,
-                                 this.getTlsPolicyMapper()::toData, node))
-                         .users(EntityMapper.mapInitialized(entity::getUsers, null, this.getUserMapper()::toDataSet,
-                                 node))
-                         .addresses(EntityMapper.mapInitialized(entity::getAddresses, null,
-                                 this.getAddressMapper()::toDataSet, node))
+                         .tlsPolicy(EntityMapper.mapInitialized(entity::getTlsPolicy,
+                                 helper.toItem(MailTLSPolicyEntity.class, MailTLSPolicy.class)))
+                         .users(EntityMapper.mapInitialized(entity::getUsers,
+                                 helper.toSet(MailUserEntity.class, MailUser.class)))
+                         .addresses(EntityMapper.mapInitialized(entity::getAddresses,
+                                 helper.toSet(MailAddressEntity.class, MailAddress.class)))
                          .build();
-    }
-
-    private EntityMapper<MailTLSPolicyEntity, MailTLSPolicy> getTlsPolicyMapper( )
-    {
-        return this.registry.findEntityMapper(MailTLSPolicyEntity.class, MailTLSPolicy.class).orElseThrow();
-    }
-
-    private EntityMapper<MailUserEntity, MailUser> getUserMapper( )
-    {
-        return this.registry.findEntityMapper(MailUserEntity.class, MailUser.class).orElseThrow();
-    }
-
-    private EntityMapper<MailAddressEntity, MailAddress> getAddressMapper( )
-    {
-        return this.registry.findEntityMapper(MailAddressEntity.class, MailAddress.class).orElseThrow();
     }
 }

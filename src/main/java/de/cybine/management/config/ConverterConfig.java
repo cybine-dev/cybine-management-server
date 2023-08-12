@@ -22,11 +22,11 @@ public class ConverterConfig
     @PostConstruct
     public void setup( )
     {
-        this.registry.addEntityMapper(new MailAddressMapper(this.registry));
-        this.registry.addEntityMapper(new MailDomainMapper(this.registry));
-        this.registry.addEntityMapper(new MailForwardingMapper(this.registry));
-        this.registry.addEntityMapper(new MailboxMapper(this.registry));
-        this.registry.addEntityMapper(new MailTLSPolicyMapper(this.registry));
-        this.registry.addEntityMapper(new MailUserMapper(this.registry));
+        this.registry.addEntityMapper(new MailAddressMapper());
+        this.registry.addEntityMapper(new MailDomainMapper());
+        this.registry.addEntityMapper(new MailForwardingMapper());
+        this.registry.addEntityMapper(new MailboxMapper());
+        this.registry.addEntityMapper(new MailTLSPolicyMapper());
+        this.registry.addEntityMapper(new MailUserMapper());
     }
 }

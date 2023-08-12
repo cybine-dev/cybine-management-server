@@ -21,25 +21,21 @@ public class ConverterRegistry
         this.addConverter(mapper.toEntityConverter());
     }
 
-    public <I, O> Optional<Converter<I, O>> findConverter(Class<I> inputType, Class<O> outputType)
-    {
-        return this.findConverter(new ConverterType<>(inputType, outputType));
-    }
-
     @SuppressWarnings("unchecked")
-    public <I, O> Optional<Converter<I, O>> findConverter(ConverterType<I, O> type)
+    <I, O> Optional<Converter<I, O>> findConverter(Class<I> inputType, Class<O> outputType)
     {
+        ConverterType<I, O> type = new ConverterType<>(inputType, outputType);
         return Optional.ofNullable((Converter<I, O>) this.converters.get(type));
     }
 
-    public <E, D> Optional<EntityMapper<E, D>> findEntityMapper(Class<E> entityType, Class<D> dataType)
+    public <I, O> ConversionProcessor<I, O> getProcessor(Class<I> inputType, Class<O> outputType)
     {
-        Converter<E, D> entityConverter = this.findConverter(entityType, dataType).orElse(null);
-        Converter<D, E> dataConverter = this.findConverter(dataType, entityType).orElse(null);
+        return this.getProcessor(inputType, outputType, ConverterTree.create());
+    }
 
-        if (entityConverter == null || dataConverter == null)
-            return Optional.empty();
-
-        return Optional.of(new TypeMapper<>(entityType, dataType, entityConverter, dataConverter));
+    public <I, O> ConversionProcessor<I, O> getProcessor(Class<I> inputType, Class<O> outputType,
+            ConverterTree metadata)
+    {
+        return new ConversionProcessor<>(inputType, outputType, metadata, this);
     }
 }

@@ -11,13 +11,13 @@ import java.util.function.*;
  * @param <T> type of the object to get the key from
  * @param <K> type of the key
  */
+@Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConverterKeyMapper<T, K>
 {
     /**
      * {@link Class<T>} of the object to get the key from
      */
-    @Getter
     @JsonProperty("type")
     private final Class<T> type;
 
@@ -25,6 +25,7 @@ public class ConverterKeyMapper<T, K>
      * Method used to extract the key
      */
     @JsonIgnore
+    @Getter(AccessLevel.NONE)
     private final Function<T, K> keyMapper;
 
     /**

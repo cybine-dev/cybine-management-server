@@ -5,7 +5,6 @@ import de.cybine.management.data.mail.domain.*;
 import de.cybine.management.data.util.*;
 import de.cybine.management.data.util.password.*;
 import de.cybine.management.util.*;
-import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.extern.jackson.*;
 

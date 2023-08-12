@@ -2,27 +2,28 @@ package de.cybine.management.util.converter;
 
 import lombok.*;
 
+@Getter
 @AllArgsConstructor
 public class TypeMapper<E, D> implements EntityMapper<E, D>
 {
-    @Getter
     private final Class<E> entityType;
-
-    @Getter
     private final Class<D> dataType;
 
+    @Getter(AccessLevel.NONE)
     private final Converter<E, D> entityConverter;
+
+    @Getter(AccessLevel.NONE)
     private final Converter<D, E> dataConverter;
 
     @Override
-    public E toEntity(D data, ConverterTreeNode parentNode)
+    public E toEntity(D data, ConversionHelper helper)
     {
-        return this.dataConverter.convert(data, parentNode);
+        return this.dataConverter.convert(data, helper);
     }
 
     @Override
-    public D toData(E entity, ConverterTreeNode parentNode)
+    public D toData(E entity, ConversionHelper helper)
     {
-        return this.entityConverter.convert(entity, parentNode);
+        return this.entityConverter.convert(entity, helper);
     }
 }

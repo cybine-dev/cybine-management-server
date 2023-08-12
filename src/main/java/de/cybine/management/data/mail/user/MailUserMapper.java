@@ -5,15 +5,9 @@ import de.cybine.management.data.util.*;
 import de.cybine.management.data.util.password.*;
 import de.cybine.management.data.util.primitive.*;
 import de.cybine.management.util.converter.*;
-import jakarta.enterprise.context.*;
-import lombok.*;
 
-@ApplicationScoped
-@RequiredArgsConstructor
 public class MailUserMapper implements EntityMapper<MailUserEntity, MailUser>
 {
-    private final ConverterRegistry registry;
-
     @Override
     public Class<MailUserEntity> getEntityType( )
     {
@@ -27,16 +21,13 @@ public class MailUserMapper implements EntityMapper<MailUserEntity, MailUser>
     }
 
     @Override
-    public MailUserEntity toEntity(MailUser data, ConverterTreeNode parentNode)
+    public MailUserEntity toEntity(MailUser data, ConversionHelper helper)
     {
-        ConverterTreeNode node = parentNode.process(data).orElse(null);
-        if (node == null)
-            return null;
-
         return MailUserEntity.builder()
                              .id(data.findId().map(Id::getValue).orElse(null))
                              .domainId(data.getDomainId().getValue())
-                             .domain(this.getDomainMapper().toEntity(data.getDomain().orElse(null), node))
+                             .domain(helper.toItem(MailDomain.class, MailDomainEntity.class)
+                                           .apply(data.getDomain().orElse(null)))
                              .username(data.getUsername().asString())
                              .passwordHash(data.getPasswordHash().asString())
                              .isEnabled(data.isEnabled())
@@ -44,25 +35,16 @@ public class MailUserMapper implements EntityMapper<MailUserEntity, MailUser>
     }
 
     @Override
-    public MailUser toData(MailUserEntity entity, ConverterTreeNode parentNode)
+    public MailUser toData(MailUserEntity entity, ConversionHelper helper)
     {
-        ConverterTreeNode node = parentNode.process(entity).orElse(null);
-        if (node == null)
-            return null;
-
         return MailUser.builder()
                        .id(MailUserId.of(entity.getId()))
                        .domainId(MailDomainId.of(entity.getDomainId()))
-                       .domain(EntityMapper.mapInitialized(entity::getDomain, null, this.getDomainMapper()::toData,
-                               node))
+                       .domain(EntityMapper.mapInitialized(entity::getDomain,
+                               helper.toItem(MailDomainEntity.class, MailDomain.class)))
                        .username(Username.of(entity.getUsername()))
                        .passwordHash(BCryptPasswordHash.of(entity.getPasswordHash()))
                        .isEnabled(entity.getIsEnabled())
                        .build();
-    }
-
-    private EntityMapper<MailDomainEntity, MailDomain> getDomainMapper( )
-    {
-        return this.registry.findEntityMapper(MailDomainEntity.class, MailDomain.class).orElseThrow();
     }
 }
