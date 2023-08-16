@@ -4,7 +4,7 @@ import lombok.*;
 
 @Getter
 @AllArgsConstructor
-public class TypeMapper<E, D> implements EntityMapper<E, D>
+public class GenericEntityMapper<E, D> implements EntityMapper<E, D>
 {
     private final Class<E> entityType;
     private final Class<D> dataType;

@@ -6,7 +6,7 @@ import java.util.function.*;
 
 @Getter
 @RequiredArgsConstructor
-public class TypeConverter<I, O> implements Converter<I, O>
+public class GenericConverter<I, O> implements Converter<I, O>
 {
     private final Class<I> inputType;
     private final Class<O> outputType;

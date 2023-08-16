@@ -55,7 +55,7 @@ public interface EntityMapper<E, D>
      */
     default Converter<E, D> toDataConverter( )
     {
-        return new TypeConverter<>(this.getEntityType(), this.getDataType(), this::toData);
+        return new GenericConverter<>(this.getEntityType(), this.getDataType(), this::toData);
     }
 
     /**
@@ -63,7 +63,7 @@ public interface EntityMapper<E, D>
      */
     default Converter<D, E> toEntityConverter( )
     {
-        return new TypeConverter<>(this.getDataType(), this.getEntityType(), this::toEntity);
+        return new GenericConverter<>(this.getDataType(), this.getEntityType(), this::toEntity);
     }
 
     /**
