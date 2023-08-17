@@ -15,7 +15,7 @@ public class ConverterRegistry
         this.converters.put(converter.getType(), converter);
     }
 
-    public <E, D> void addEntityMapper(EntityMapper<E, D> mapper)
+    public void addEntityMapper(EntityMapper<?, ?> mapper)
     {
         this.addConverter(mapper.toDataConverter());
         this.addConverter(mapper.toEntityConverter());
