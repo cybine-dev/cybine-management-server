@@ -3,6 +3,7 @@ package de.cybine.management.util.converter;
 import lombok.*;
 
 import java.util.*;
+import java.util.stream.*;
 
 @RequiredArgsConstructor
 public class ConversionProcessor<I, O>
@@ -30,6 +31,14 @@ public class ConversionProcessor<I, O>
     {
         ConversionHelper helper = this.createConversionHelper();
         return new ConversionResult<>(this.metadata, helper.toSet(this.inputType, this.outputType).apply(input));
+    }
+
+    public <C extends Collection<O>> ConversionResult<C> toCollection(Collection<I> input, C defaultValue,
+            Collector<O, ?, C> collector)
+    {
+        ConversionHelper helper = this.createConversionHelper();
+        return new ConversionResult<>(this.metadata,
+                helper.toCollection(this.inputType, this.outputType, defaultValue, collector).apply(input));
     }
 
     private ConversionHelper createConversionHelper( )

@@ -14,7 +14,12 @@ public class ConversionHelper
 
     public <I, O> Function<I, O> toItem(Class<I> inputType, Class<O> outputType)
     {
-        Converter<I, O> converter = this.registry.findConverter(inputType, outputType).orElseThrow();
+        Converter<I, O> converter = this.findConverterOrThrow(inputType, outputType);
+        return this.toItem(converter);
+    }
+
+    public <I, O> Function<I, O> toItem(Converter<I, O> converter)
+    {
         return input ->
         {
             ConverterTreeNode node = this.parentNode.process(input).orElse(null);
@@ -27,33 +32,37 @@ public class ConversionHelper
 
     public <I, O> Function<Collection<I>, List<O>> toList(Class<I> inputType, Class<O> outputType)
     {
-        Function<I, O> converter = this.toItem(inputType, outputType);
-        return input ->
-        {
-            ConverterConstraint generalConstraint = this.parentNode.getConstraint();
-            ConverterConstraint typeSpecificConstraint = this.parentNode.getConstraint(this.parentNode.getItemType());
-            boolean allowEmptyCollection = typeSpecificConstraint.getAllowEmptyCollection()
-                                                                 .or(generalConstraint::getAllowEmptyCollection)
-                                                                 .orElse(false);
+        Converter<I, O> converter = this.findConverterOrThrow(inputType, outputType);
+        return this.toList(converter);
+    }
 
-            boolean shouldFilterNullValues = typeSpecificConstraint.getFilterNullValues()
-                                                                   .or(generalConstraint::getFilterNullValues)
-                                                                   .orElse(true);
-
-            if (!this.parentNode.shouldBeProcessed(input))
-            {
-                return this.processEmptyCollection(Collections.emptyList(), allowEmptyCollection);
-            }
-
-            return this.processEmptyCollection(
-                    input.stream().map(converter).filter(item -> !shouldFilterNullValues || item != null).toList(),
-                    allowEmptyCollection);
-        };
+    public <I, O> Function<Collection<I>, List<O>> toList(Converter<I, O> converter)
+    {
+        return this.toCollection(converter, Collections.emptyList(), Collectors.toList());
     }
 
     public <I, O> Function<Collection<I>, Set<O>> toSet(Class<I> inputType, Class<O> outputType)
     {
-        Function<I, O> converter = this.toItem(inputType, outputType);
+        Converter<I, O> converter = this.findConverterOrThrow(inputType, outputType);
+        return this.toSet(converter);
+    }
+
+    public <I, O> Function<Collection<I>, Set<O>> toSet(Converter<I, O> converter)
+    {
+        return this.toCollection(converter, Collections.emptySet(), Collectors.toSet());
+    }
+
+    public <I, O, C extends Collection<O>> Function<Collection<I>, C> toCollection(Class<I> inputType,
+            Class<O> outputType, C defaultValue, Collector<O, ?, C> collector)
+    {
+        Converter<I, O> converter = this.findConverterOrThrow(inputType, outputType);
+        return this.toCollection(converter, defaultValue, collector);
+    }
+
+    public <I, O, C extends Collection<O>> Function<Collection<I>, C> toCollection(Converter<I, O> converter,
+            C defaultValue, Collector<O, ?, C> collector)
+    {
+        Function<I, O> conversionFunction = this.toItem(converter);
         return input ->
         {
             ConverterConstraint generalConstraint = this.parentNode.getConstraint();
@@ -68,14 +77,19 @@ public class ConversionHelper
 
             if (!this.parentNode.shouldBeProcessed(input))
             {
-                return this.processEmptyCollection(Collections.emptySet(), allowEmptyCollection);
+                return this.processEmptyCollection(defaultValue, allowEmptyCollection);
             }
 
             return this.processEmptyCollection(input.stream()
-                                                    .map(converter)
+                                                    .map(conversionFunction)
                                                     .filter(item -> !shouldFilterNullValues || item != null)
-                                                    .collect(Collectors.toSet()), allowEmptyCollection);
+                                                    .collect(collector), allowEmptyCollection);
         };
+    }
+
+    private <I, O> Converter<I, O> findConverterOrThrow(Class<I> inputType, Class<O> outputType)
+    {
+        return this.registry.findConverter(inputType, outputType).orElseThrow();
     }
 
     private <T extends Collection<?>> T processEmptyCollection(T collection, boolean allowEmptyCollection)
