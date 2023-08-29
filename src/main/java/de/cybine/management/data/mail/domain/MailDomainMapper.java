@@ -29,11 +29,10 @@ public class MailDomainMapper implements EntityMapper<MailDomainEntity, MailDoma
                                .domain(data.getDomain().asString())
                                .action(data.getAction())
                                .tlsPolicy(helper.toItem(MailTLSPolicy.class, MailTLSPolicyEntity.class)
-                                                .apply(data.getTlsPolicy().orElse(null)))
-                               .users(helper.toSet(MailUser.class, MailUserEntity.class)
-                                            .apply(data.getUsers().orElse(null)))
-                               .addresses(helper.toSet(MailAddress.class, MailAddressEntity.class)
-                                                .apply(data.getAddresses().orElse(null)))
+                                                .map(data::getTlsPolicy))
+                               .users(helper.toSet(MailUser.class, MailUserEntity.class).map(data::getUsers))
+                               .addresses(
+                                       helper.toSet(MailAddress.class, MailAddressEntity.class).map(data::getAddresses))
                                .build();
     }
 
@@ -44,12 +43,11 @@ public class MailDomainMapper implements EntityMapper<MailDomainEntity, MailDoma
                          .id(MailDomainId.of(entity.getId()))
                          .domain(Domain.of(entity.getDomain()))
                          .action(entity.getAction())
-                         .tlsPolicy(EntityMapper.mapInitialized(entity::getTlsPolicy,
-                                 helper.toItem(MailTLSPolicyEntity.class, MailTLSPolicy.class)))
-                         .users(EntityMapper.mapInitialized(entity::getUsers,
-                                 helper.toSet(MailUserEntity.class, MailUser.class)))
-                         .addresses(EntityMapper.mapInitialized(entity::getAddresses,
-                                 helper.toSet(MailAddressEntity.class, MailAddress.class)))
+                         .tlsPolicy(helper.toItem(MailTLSPolicyEntity.class, MailTLSPolicy.class)
+                                          .apply(entity::getTlsPolicy))
+                         .users(helper.toSet(MailUserEntity.class, MailUser.class).apply(entity::getUsers))
+                         .addresses(
+                                 helper.toSet(MailAddressEntity.class, MailAddress.class).apply(entity::getAddresses))
                          .build();
     }
 }

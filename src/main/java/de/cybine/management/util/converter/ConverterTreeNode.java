@@ -10,13 +10,13 @@ import java.util.*;
 
 @Getter
 @ToString
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Generator")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @SuppressWarnings({ "unused", "BooleanMethodIsAlwaysInverted" })
 public class ConverterTreeNode
 {
     @JsonProperty("id")
-    @lombok.Builder.Default
+    @Builder.Default
     private final UUID id = UUID.randomUUID();
 
     @JsonProperty("item_type")

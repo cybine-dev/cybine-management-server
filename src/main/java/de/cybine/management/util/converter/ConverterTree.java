@@ -28,7 +28,7 @@ public class ConverterTree
     @JsonProperty("nodes")
     private final Map<UUID, ConverterTreeNode> treeNodes = new HashMap<>();
 
-    @lombok.Builder(builderClassName = "Builder")
+    @Builder(builderClassName = "Generator")
     private ConverterTree(ConverterConstraint constraint, @Singular Map<Type, ConverterConstraint> typeConstraints,
             @Singular List<ConverterKeyMapper<?, ?>> keyMappers)
     {

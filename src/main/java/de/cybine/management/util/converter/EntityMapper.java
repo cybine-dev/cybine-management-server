@@ -1,9 +1,5 @@
 package de.cybine.management.util.converter;
 
-import org.hibernate.*;
-
-import java.util.function.*;
-
 /**
  * <p>Two way {@link Converter}</p>
  *
@@ -64,31 +60,5 @@ public interface EntityMapper<E, D>
     default Converter<D, E> toEntityConverter( )
     {
         return new GenericConverter<>(this.getDataType(), this.getEntityType(), this::toEntity);
-    }
-
-    /**
-     * <p>Conditionally executes provided mapping method if the data returned by the value supplier is initialized in
-     * the current hibernate session context</p>
-     *
-     * @param value
-     *         reference to the getter of the field to get mapped
-     * @param mapper
-     *         method to perform mapping
-     * @param <I>
-     *         type of the object to be mapped
-     * @param <O>type
-     *         of the object that is generated in the mapping process
-     *
-     * @return mapped object or provided default value if field is not initialized
-     */
-    static <I, O> O mapInitialized(Supplier<I> value, Function<I, O> mapper)
-    {
-        I item = value.get();
-        if (!Hibernate.isInitialized(item))
-        {
-            return null;
-        }
-
-        return mapper.apply(item);
     }
 }

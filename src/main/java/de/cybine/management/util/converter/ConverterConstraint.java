@@ -9,7 +9,7 @@ import java.util.*;
  * <p>Constraints to evaluate while performing object conversions</p>
  */
 @Data
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Generator")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConverterConstraint
 {

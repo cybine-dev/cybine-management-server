@@ -23,10 +23,10 @@ public class MailForwardingMapper implements EntityMapper<MailForwardingEntity, 
         return MailForwardingEntity.builder()
                                    .forwardingAddressId(data.getForwardingAddressId().getValue())
                                    .forwardingAddress(helper.toItem(MailAddress.class, MailAddressEntity.class)
-                                                            .apply(data.getForwardingAddress().orElse(null)))
+                                                            .map(data::getForwardingAddress))
                                    .receiverAddressId(data.getReceiverAddressId().getValue())
                                    .receiverAddress(helper.toItem(MailAddress.class, MailAddressEntity.class)
-                                                          .apply(data.getReceiverAddress().orElse(null)))
+                                                          .map(data::getReceiverAddress))
                                    .startsAt(data.getStartsAt().orElse(null))
                                    .endsAt(data.getEndsAt().orElse(null))
                                    .build();
@@ -37,11 +37,11 @@ public class MailForwardingMapper implements EntityMapper<MailForwardingEntity, 
     {
         return MailForwarding.builder()
                              .forwardingAddressId(MailAddressId.of(entity.getForwardingAddressId()))
-                             .forwardingAddress(EntityMapper.mapInitialized(entity::getForwardingAddress,
-                                     helper.toItem(MailAddressEntity.class, MailAddress.class)))
+                             .forwardingAddress(helper.toItem(MailAddressEntity.class, MailAddress.class)
+                                                      .apply(entity::getForwardingAddress))
                              .receiverAddressId(MailAddressId.of(entity.getReceiverAddressId()))
-                             .receiverAddress(EntityMapper.mapInitialized(entity::getReceiverAddress,
-                                     helper.toItem(MailAddressEntity.class, MailAddress.class)))
+                             .receiverAddress(helper.toItem(MailAddressEntity.class, MailAddress.class)
+                                                    .apply(entity::getReceiverAddress))
                              .startsAt(entity.getStartsAt())
                              .endsAt(entity.getEndsAt())
                              .build();
