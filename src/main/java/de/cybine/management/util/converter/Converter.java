@@ -32,7 +32,7 @@ public interface Converter<I, O>
      * <p>Method to perform object mapping</p>
      *
      * @param input
-     *         object to be mappepd
+     *         object to be mapped
      * @param helper
      *         helper for mapping of related objects
      *

@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.stream.*;
 
 @RequiredArgsConstructor
+@SuppressWarnings("unused")
 public class ConversionProcessor<I, O>
 {
     private final Class<I> inputType;
@@ -13,7 +14,7 @@ public class ConversionProcessor<I, O>
 
     private final ConverterTree metadata;
 
-    private final ConverterRegistry registry;
+    private final ConverterResolver converterResolver;
 
     public ConversionResult<O> toItem(I input)
     {
@@ -43,6 +44,6 @@ public class ConversionProcessor<I, O>
 
     private ConversionHelper createConversionHelper( )
     {
-        return new ConversionHelper(this.registry, this.metadata.getRootNode());
+        return new ConversionHelper(this.metadata.getRootNode(), this.converterResolver);
     }
 }

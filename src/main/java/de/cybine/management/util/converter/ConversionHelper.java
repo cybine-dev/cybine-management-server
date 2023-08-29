@@ -7,14 +7,16 @@ import java.util.function.*;
 import java.util.stream.*;
 
 @RequiredArgsConstructor
+@SuppressWarnings("unused")
 public class ConversionHelper
 {
-    private final ConverterRegistry registry;
     private final ConverterTreeNode parentNode;
+
+    private final ConverterResolver converterResolver;
 
     public <I, O> Function<I, O> toItem(Class<I> inputType, Class<O> outputType)
     {
-        Converter<I, O> converter = this.findConverterOrThrow(inputType, outputType);
+        Converter<I, O> converter = this.getConverter(inputType, outputType);
         return this.toItem(converter);
     }
 
@@ -26,13 +28,13 @@ public class ConversionHelper
             if (node == null)
                 return null;
 
-            return converter.convert(input, new ConversionHelper(this.registry, node));
+            return converter.convert(input, new ConversionHelper(node, this.converterResolver));
         };
     }
 
     public <I, O> Function<Collection<I>, List<O>> toList(Class<I> inputType, Class<O> outputType)
     {
-        Converter<I, O> converter = this.findConverterOrThrow(inputType, outputType);
+        Converter<I, O> converter = this.getConverter(inputType, outputType);
         return this.toList(converter);
     }
 
@@ -43,7 +45,7 @@ public class ConversionHelper
 
     public <I, O> Function<Collection<I>, Set<O>> toSet(Class<I> inputType, Class<O> outputType)
     {
-        Converter<I, O> converter = this.findConverterOrThrow(inputType, outputType);
+        Converter<I, O> converter = this.getConverter(inputType, outputType);
         return this.toSet(converter);
     }
 
@@ -55,7 +57,7 @@ public class ConversionHelper
     public <I, O, C extends Collection<O>> Function<Collection<I>, C> toCollection(Class<I> inputType,
             Class<O> outputType, C defaultValue, Collector<O, ?, C> collector)
     {
-        Converter<I, O> converter = this.findConverterOrThrow(inputType, outputType);
+        Converter<I, O> converter = this.getConverter(inputType, outputType);
         return this.toCollection(converter, defaultValue, collector);
     }
 
@@ -87,9 +89,9 @@ public class ConversionHelper
         };
     }
 
-    private <I, O> Converter<I, O> findConverterOrThrow(Class<I> inputType, Class<O> outputType)
+    private <I, O> Converter<I, O> getConverter(Class<I> inputType, Class<O> outputType)
     {
-        return this.registry.findConverter(inputType, outputType).orElseThrow();
+        return this.converterResolver.getConverter(inputType, outputType);
     }
 
     private <T extends Collection<?>> T processEmptyCollection(T collection, boolean allowEmptyCollection)

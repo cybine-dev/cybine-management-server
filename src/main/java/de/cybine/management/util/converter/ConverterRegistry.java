@@ -21,13 +21,6 @@ public class ConverterRegistry
         this.addConverter(mapper.toEntityConverter());
     }
 
-    @SuppressWarnings("unchecked")
-    <I, O> Optional<Converter<I, O>> findConverter(Class<I> inputType, Class<O> outputType)
-    {
-        ConverterType<I, O> type = new ConverterType<>(inputType, outputType);
-        return Optional.ofNullable((Converter<I, O>) this.converters.get(type));
-    }
-
     public <I, O> ConversionProcessor<I, O> getProcessor(Class<I> inputType, Class<O> outputType)
     {
         return this.getProcessor(inputType, outputType, ConverterTree.create());
@@ -36,6 +29,12 @@ public class ConverterRegistry
     public <I, O> ConversionProcessor<I, O> getProcessor(Class<I> inputType, Class<O> outputType,
             ConverterTree metadata)
     {
-        return new ConversionProcessor<>(inputType, outputType, metadata, this);
+        return new ConversionProcessor<>(inputType, outputType, metadata, this::getConverter);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <I, O> Converter<I, O> getConverter(ConverterType<I, O> type)
+    {
+        return (Converter<I, O>) this.converters.get(type);
     }
 }
