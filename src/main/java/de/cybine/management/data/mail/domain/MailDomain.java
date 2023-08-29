@@ -14,12 +14,13 @@ import java.util.stream.*;
 
 @Data
 @Jacksonized
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Generator")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MailDomain implements WithId<MailDomainId>
 {
     @JsonProperty("id")
+    @EqualsAndHashCode.Include
     private final MailDomainId id;
 
     @JsonProperty("domain")

@@ -14,7 +14,7 @@ import java.time.*;
 @Data
 @NoArgsConstructor
 @Table(name = MailForwardingEntity_.TABLE)
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Generator")
 @Entity(name = MailForwardingEntity_.ENTITY)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
@@ -22,6 +22,7 @@ public class MailForwardingEntity extends PanacheEntityBase implements Serializa
 {
     @Id
     @NotNull
+    @EqualsAndHashCode.Include
     @Column(name = MailForwardingEntity_.FORWARDING_ADDRESS_ID_COLUMN, insertable = false, updatable = false)
     private long forwardingAddressId;
 
@@ -32,6 +33,7 @@ public class MailForwardingEntity extends PanacheEntityBase implements Serializa
 
     @Id
     @NotNull
+    @EqualsAndHashCode.Include
     @Column(name = MailForwardingEntity_.RECEIVER_ADDRESS_ID_COLUMN, insertable = false, updatable = false)
     private long receiverAddressId;
 

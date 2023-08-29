@@ -12,12 +12,13 @@ import java.util.stream.*;
 
 @Data
 @Jacksonized
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Generator")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Mailbox implements WithId<MailboxId>
 {
     @JsonProperty("id")
+    @EqualsAndHashCode.Include
     private final MailboxId id;
 
     @JsonProperty("name")

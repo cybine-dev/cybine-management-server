@@ -10,12 +10,13 @@ import java.util.*;
 
 @Data
 @Jacksonized
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Generator")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MailTLSPolicy implements WithId<MailTLSPolicyId>
 {
     @JsonProperty("id")
+    @EqualsAndHashCode.Include
     private final MailTLSPolicyId id;
 
     @JsonProperty("domain_id")

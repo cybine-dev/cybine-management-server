@@ -12,11 +12,12 @@ import java.util.*;
 
 @Data
 @Jacksonized
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Generator")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MailForwarding implements WithId<MailForwarding.Id>
 {
+    @EqualsAndHashCode.Include
     @JsonProperty("forwarding_address_id")
     private final MailAddressId forwardingAddressId;
 
@@ -24,6 +25,7 @@ public class MailForwarding implements WithId<MailForwarding.Id>
     @JsonProperty("forwarding_address")
     private final MailAddress forwardingAddress;
 
+    @EqualsAndHashCode.Include
     @JsonProperty("receiver_address_id")
     private final MailAddressId receiverAddressId;
 
