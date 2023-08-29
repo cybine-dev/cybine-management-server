@@ -14,7 +14,7 @@ import java.io.*;
 @Data
 @NoArgsConstructor
 @Table(name = MailTLSPolicyEntity_.TABLE)
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Generator")
 @Entity(name = MailTLSPolicyEntity_.ENTITY)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)

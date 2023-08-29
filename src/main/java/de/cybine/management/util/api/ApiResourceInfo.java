@@ -6,7 +6,7 @@ import lombok.*;
 import java.util.*;
 
 @Data
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Generator")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApiResourceInfo
 {

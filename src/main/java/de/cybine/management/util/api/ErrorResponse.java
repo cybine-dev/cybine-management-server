@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 import lombok.*;
 
 @Data
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Generator")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ErrorResponse
 {

@@ -16,7 +16,7 @@ import java.util.*;
 @NoArgsConstructor
 @Table(name = MailUserEntity_.TABLE)
 @Entity(name = MailUserEntity_.ENTITY)
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Generator")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class MailUserEntity extends PanacheEntityBase implements Serializable, WithId<Long>

@@ -1,7 +1,7 @@
 package de.cybine.management.exception;
 
 @SuppressWarnings("unused")
-public class MailValidationException extends ServiceException
+public class MailValidationException extends IllegalArgumentException
 {
     public MailValidationException( )
     {

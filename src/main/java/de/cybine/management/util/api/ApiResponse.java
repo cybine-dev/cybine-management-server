@@ -9,12 +9,12 @@ import java.net.*;
 import java.util.*;
 
 @Data
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Generator")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApiResponse<T>
 {
     @JsonIgnore
-    @lombok.Builder.Default
+    @Builder.Default
     private final RestResponse.Status status = RestResponse.Status.OK;
 
     @JsonProperty("value")

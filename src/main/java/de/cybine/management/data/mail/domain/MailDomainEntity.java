@@ -17,7 +17,7 @@ import java.util.*;
 @NoArgsConstructor
 @Table(name = MailDomainEntity_.TABLE)
 @Entity(name = MailDomainEntity_.ENTITY)
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Generator")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class MailDomainEntity implements Serializable, WithId<Long>
