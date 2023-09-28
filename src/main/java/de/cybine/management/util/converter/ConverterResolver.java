@@ -1,5 +1,8 @@
 package de.cybine.management.util.converter;
 
+/**
+ * Helper class to define method to retrieve {@link Converter}
+ */
 public interface ConverterResolver
 {
     <I, O> Converter<I, O> getConverter(ConverterType<I, O> type);

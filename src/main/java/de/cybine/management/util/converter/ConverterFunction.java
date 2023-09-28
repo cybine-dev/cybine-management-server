@@ -3,6 +3,14 @@ package de.cybine.management.util.converter;
 import java.util.*;
 import java.util.function.*;
 
+/**
+ * Enhanced {@link Function} for use with {@link Converter}
+ *
+ * @param <I>
+ *         input data-type
+ * @param <O>
+ *         output data-type
+ */
 @FunctionalInterface
 @SuppressWarnings("unused")
 public interface ConverterFunction<I, O> extends Function<I, O>
