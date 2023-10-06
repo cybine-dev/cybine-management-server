@@ -1,7 +1,8 @@
 package de.cybine.management.util.api.query;
 
 import com.fasterxml.jackson.annotation.*;
-import io.smallrye.common.constraint.*;
+import jakarta.validation.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.extern.jackson.*;
 
@@ -21,9 +22,11 @@ public class ApiRelationInfo
     @JsonProperty("fetch")
     private final boolean fetch = false;
 
+    @Valid
     @JsonProperty("condition")
     private final ApiConditionInfo condition;
 
+    @Valid
     @Singular("order")
     @JsonProperty("order")
     private final List<ApiOrderInfo> order;

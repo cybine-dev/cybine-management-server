@@ -1,6 +1,7 @@
 package de.cybine.management.util.api.query;
 
 import com.fasterxml.jackson.annotation.*;
+import jakarta.validation.*;
 import lombok.*;
 import lombok.extern.jackson.*;
 
@@ -12,6 +13,7 @@ import java.util.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApiCountQuery
 {
+    @Valid
     @JsonProperty("condition")
     private final ApiConditionInfo condition;
 
@@ -19,6 +21,7 @@ public class ApiCountQuery
     @JsonProperty("group_by")
     private final List<String> groupingProperties;
 
+    @Valid
     @Singular
     @JsonProperty("relations")
     private final List<ApiCountRelationInfo> relations;

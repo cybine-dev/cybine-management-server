@@ -1,7 +1,7 @@
 package de.cybine.management.util.api.query;
 
 import com.fasterxml.jackson.annotation.*;
-import io.smallrye.common.constraint.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.*;
 import lombok.extern.jackson.*;

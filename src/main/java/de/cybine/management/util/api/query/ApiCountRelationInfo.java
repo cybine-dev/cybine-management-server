@@ -1,7 +1,8 @@
 package de.cybine.management.util.api.query;
 
 import com.fasterxml.jackson.annotation.*;
-import io.smallrye.common.constraint.*;
+import jakarta.validation.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.extern.jackson.*;
 
@@ -17,6 +18,7 @@ public class ApiCountRelationInfo
     @JsonProperty("property")
     private final String property;
 
+    @Valid
     @JsonProperty("condition")
     private final ApiConditionInfo condition;
 

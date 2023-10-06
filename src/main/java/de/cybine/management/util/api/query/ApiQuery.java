@@ -1,6 +1,7 @@
 package de.cybine.management.util.api.query;
 
 import com.fasterxml.jackson.annotation.*;
+import jakarta.validation.*;
 import lombok.*;
 import lombok.extern.jackson.*;
 
@@ -12,16 +13,20 @@ import java.util.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApiQuery
 {
+    @Valid
     @JsonProperty("pagination")
     private final ApiPaginationInfo pagination;
 
+    @Valid
     @JsonProperty("condition")
     private final ApiConditionInfo condition;
 
+    @Valid
     @Singular("order")
     @JsonProperty("order")
     private final List<ApiOrderInfo> order;
 
+    @Valid
     @Singular
     @JsonProperty("relations")
     private final List<ApiRelationInfo> relations;

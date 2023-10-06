@@ -2,6 +2,7 @@ package de.cybine.management.util.api.query;
 
 import com.fasterxml.jackson.annotation.*;
 import jakarta.enterprise.context.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.*;
 
@@ -19,6 +20,7 @@ public class ApiPaginationInfo
     private boolean includeTotal = false;
 
     @JsonProperty("total")
+    @Null(message = "total is calculated from datasource")
     private Long total;
 
     public Optional<Integer> getSize( )

@@ -1,6 +1,7 @@
 package de.cybine.management.util.api.query;
 
 import com.fasterxml.jackson.annotation.*;
+import jakarta.validation.*;
 import lombok.*;
 import lombok.extern.jackson.*;
 import org.eclipse.microprofile.openapi.annotations.media.*;
@@ -21,10 +22,12 @@ public class ApiConditionInfo
     @JsonProperty("inverted")
     private final boolean isInverted = false;
 
+    @Valid
     @Singular
     @JsonProperty("details")
     private final List<ApiConditionDetail> details;
 
+    @Valid
     @Singular
     @JsonProperty("sub_conditions")
     private final List<ApiConditionInfo> subConditions;
