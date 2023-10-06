@@ -6,17 +6,19 @@ import de.cybine.management.util.*;
 import lombok.*;
 import lombok.extern.jackson.*;
 
+import java.io.*;
 import java.util.*;
 
 @Data
 @Jacksonized
 @Builder(builderClassName = "Generator")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class MailTLSPolicy implements WithId<MailTLSPolicyId>
+public class MailTLSPolicy implements Serializable, WithId<MailTLSPolicyId>
 {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @JsonProperty("id")
-    @EqualsAndHashCode.Include
     private final MailTLSPolicyId id;
 
     @JsonProperty("domain_id")
@@ -35,5 +37,27 @@ public class MailTLSPolicy implements WithId<MailTLSPolicyId>
     public Optional<MailDomain> getDomain( )
     {
         return Optional.ofNullable(this.domain);
+    }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if(other == null)
+            return false;
+
+        if(this.getClass() != other.getClass())
+            return false;
+
+        WithId<?> that = ((WithId<?>) other);
+        if (this.findId().isEmpty() || that.findId().isEmpty())
+            return false;
+
+        return Objects.equals(this.getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode( )
+    {
+        return this.findId().map(Object::hashCode).orElse(0);
     }
 }

@@ -13,11 +13,12 @@ import java.util.*;
 @Data
 @Jacksonized
 @Builder(builderClassName = "Generator")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class MailForwarding implements WithId<MailForwarding.Id>
+public class MailForwarding implements Serializable, WithId<MailForwarding.Id>
 {
-    @EqualsAndHashCode.Include
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @JsonProperty("forwarding_address_id")
     private final MailAddressId forwardingAddressId;
 
@@ -66,10 +67,35 @@ public class MailForwarding implements WithId<MailForwarding.Id>
         return Optional.ofNullable(this.endsAt);
     }
 
+    @Override
+    public boolean equals(Object other)
+    {
+        if(other == null)
+            return false;
+
+        if(this.getClass() != other.getClass())
+            return false;
+
+        WithId<?> that = ((WithId<?>) other);
+        if (this.findId().isEmpty() || that.findId().isEmpty())
+            return false;
+
+        return Objects.equals(this.getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode( )
+    {
+        return this.findId().map(Object::hashCode).orElse(0);
+    }
+
     @Data
     @AllArgsConstructor(staticName = "of")
     public static class Id implements Serializable
     {
+        @Serial
+        private static final long serialVersionUID = 1L;
+
         private final MailAddressId forwardingAddressId;
 
         private final MailAddressId receiverAddressId;

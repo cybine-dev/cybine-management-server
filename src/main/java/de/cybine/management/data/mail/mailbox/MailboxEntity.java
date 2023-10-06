@@ -18,12 +18,13 @@ import java.util.*;
 @Entity(name = MailboxEntity_.ENTITY)
 @Builder(builderClassName = "Generator")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class MailboxEntity extends PanacheEntityBase implements Serializable, WithId<Long>
 {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @Id
     @NotNull
-    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = MailboxEntity_.ID_COLUMN, nullable = false, unique = true)
     private Long id;
@@ -58,4 +59,26 @@ public class MailboxEntity extends PanacheEntityBase implements Serializable, Wi
                joinColumns = @JoinColumn(name = MailboxPermission_.MAILBOX_ID_COLUMN),
                inverseJoinColumns = @JoinColumn(name = MailboxPermission_.USER_ID_COLUMN))
     private Set<MailUserEntity> users;
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if(other == null)
+            return false;
+
+        if(this.getClass() != other.getClass())
+            return false;
+
+        WithId<?> that = ((WithId<?>) other);
+        if (this.findId().isEmpty() || that.findId().isEmpty())
+            return false;
+
+        return Objects.equals(this.getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode( )
+    {
+        return this.findId().map(Object::hashCode).orElse(0);
+    }
 }

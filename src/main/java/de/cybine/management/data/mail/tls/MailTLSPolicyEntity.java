@@ -10,6 +10,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.io.*;
+import java.util.*;
 
 @Data
 @NoArgsConstructor
@@ -17,12 +18,13 @@ import java.io.*;
 @Builder(builderClassName = "Generator")
 @Entity(name = MailTLSPolicyEntity_.ENTITY)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class MailTLSPolicyEntity extends PanacheEntityBase implements Serializable, WithId<Long>
 {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @Id
     @NotNull
-    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = MailTLSPolicyEntity_.ID_COLUMN, nullable = false, unique = true)
     private Long id;
@@ -46,4 +48,26 @@ public class MailTLSPolicyEntity extends PanacheEntityBase implements Serializab
     @Size(max = 255)
     @Column(name = MailTLSPolicyEntity_.PARAMS_COLUMN)
     private String params;
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if(other == null)
+            return false;
+
+        if(this.getClass() != other.getClass())
+            return false;
+
+        WithId<?> that = ((WithId<?>) other);
+        if (this.findId().isEmpty() || that.findId().isEmpty())
+            return false;
+
+        return Objects.equals(this.getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode( )
+    {
+        return this.findId().map(Object::hashCode).orElse(0);
+    }
 }

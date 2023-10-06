@@ -7,18 +7,20 @@ import de.cybine.management.util.*;
 import lombok.*;
 import lombok.extern.jackson.*;
 
+import java.io.*;
 import java.util.*;
 import java.util.stream.*;
 
 @Data
 @Jacksonized
 @Builder(builderClassName = "Generator")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Mailbox implements WithId<MailboxId>
+public class Mailbox implements Serializable, WithId<MailboxId>
 {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @JsonProperty("id")
-    @EqualsAndHashCode.Include
     private final MailboxId id;
 
     @JsonProperty("name")
@@ -63,5 +65,27 @@ public class Mailbox implements WithId<MailboxId>
     public Optional<Set<MailUserId>> getUserIds( )
     {
         return this.getUsers().map(items -> items.stream().map(WithId::getId).collect(Collectors.toSet()));
+    }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if(other == null)
+            return false;
+
+        if(this.getClass() != other.getClass())
+            return false;
+
+        WithId<?> that = ((WithId<?>) other);
+        if (this.findId().isEmpty() || that.findId().isEmpty())
+            return false;
+
+        return Objects.equals(this.getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode( )
+    {
+        return this.findId().map(Object::hashCode).orElse(0);
     }
 }

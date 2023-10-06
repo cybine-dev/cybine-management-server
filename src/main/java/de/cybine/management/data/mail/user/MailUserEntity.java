@@ -18,12 +18,13 @@ import java.util.*;
 @Entity(name = MailUserEntity_.ENTITY)
 @Builder(builderClassName = "Generator")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class MailUserEntity extends PanacheEntityBase implements Serializable, WithId<Long>
 {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @Id
     @NotNull
-    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = MailUserEntity_.ID_COLUMN, nullable = false, unique = true)
     private Long id;
@@ -59,4 +60,26 @@ public class MailUserEntity extends PanacheEntityBase implements Serializable, W
     @NotNull
     @ManyToMany(mappedBy = MailAddressEntity_.SENDERS_RELATION)
     private Set<MailAddressEntity> permittedAddresses;
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if(other == null)
+            return false;
+
+        if(this.getClass() != other.getClass())
+            return false;
+
+        WithId<?> that = ((WithId<?>) other);
+        if (this.findId().isEmpty() || that.findId().isEmpty())
+            return false;
+
+        return Objects.equals(this.getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode( )
+    {
+        return this.findId().map(Object::hashCode).orElse(0);
+    }
 }
