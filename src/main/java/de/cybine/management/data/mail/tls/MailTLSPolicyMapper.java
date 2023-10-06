@@ -26,7 +26,7 @@ public class MailTLSPolicyMapper implements EntityMapper<MailTLSPolicyEntity, Ma
                                   .domainId(data.getDomainId().getValue())
                                   .domain(helper.toItem(MailDomain.class, MailDomainEntity.class).map(data::getDomain))
                                   .type(data.getType())
-                                  .params(data.getParams())
+                                  .params(data.getParams().orElse(null))
                                   .build();
     }
 
@@ -36,9 +36,9 @@ public class MailTLSPolicyMapper implements EntityMapper<MailTLSPolicyEntity, Ma
         return MailTLSPolicy.builder()
                             .id(MailTLSPolicyId.of(entity.getId()))
                             .domainId(MailDomainId.of(entity.getDomainId()))
-                            .domain(helper.toItem(MailDomainEntity.class, MailDomain.class).apply(entity::getDomain))
+                            .domain(helper.toItem(MailDomainEntity.class, MailDomain.class).map(entity::getDomain))
                             .type(entity.getType())
-                            .params(entity.getParams())
+                            .params(entity.getParams().orElse(null))
                             .build();
     }
 }

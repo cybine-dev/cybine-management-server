@@ -44,10 +44,10 @@ public class MailDomainMapper implements EntityMapper<MailDomainEntity, MailDoma
                          .domain(Domain.of(entity.getDomain()))
                          .action(entity.getAction())
                          .tlsPolicy(helper.toItem(MailTLSPolicyEntity.class, MailTLSPolicy.class)
-                                          .apply(entity::getTlsPolicy))
-                         .users(helper.toSet(MailUserEntity.class, MailUser.class).apply(entity::getUsers))
+                                          .map(entity::getTlsPolicy))
+                         .users(helper.toSet(MailUserEntity.class, MailUser.class).map(entity::getUsers))
                          .addresses(
-                                 helper.toSet(MailAddressEntity.class, MailAddress.class).apply(entity::getAddresses))
+                                 helper.toSet(MailAddressEntity.class, MailAddress.class).map(entity::getAddresses))
                          .build();
     }
 }

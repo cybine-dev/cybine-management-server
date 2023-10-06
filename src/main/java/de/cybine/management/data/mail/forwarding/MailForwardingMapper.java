@@ -38,12 +38,12 @@ public class MailForwardingMapper implements EntityMapper<MailForwardingEntity, 
         return MailForwarding.builder()
                              .forwardingAddressId(MailAddressId.of(entity.getForwardingAddressId()))
                              .forwardingAddress(helper.toItem(MailAddressEntity.class, MailAddress.class)
-                                                      .apply(entity::getForwardingAddress))
+                                                      .map(entity::getForwardingAddress))
                              .receiverAddressId(MailAddressId.of(entity.getReceiverAddressId()))
                              .receiverAddress(helper.toItem(MailAddressEntity.class, MailAddress.class)
-                                                    .apply(entity::getReceiverAddress))
-                             .startsAt(entity.getStartsAt())
-                             .endsAt(entity.getEndsAt())
+                                                    .map(entity::getReceiverAddress))
+                             .startsAt(entity.getStartsAt().orElse(null))
+                             .endsAt(entity.getEndsAt().orElse(null))
                              .build();
     }
 }

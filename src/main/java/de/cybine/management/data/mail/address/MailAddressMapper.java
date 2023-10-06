@@ -45,15 +45,15 @@ public class MailAddressMapper implements EntityMapper<MailAddressEntity, MailAd
         return MailAddress.builder()
                           .id(MailAddressId.of(entity.getId()))
                           .domainId(MailDomainId.of(entity.getDomainId()))
-                          .domain(helper.toItem(MailDomainEntity.class, MailDomain.class).apply(entity::getDomain))
+                          .domain(helper.toItem(MailDomainEntity.class, MailDomain.class).map(entity::getDomain))
                           .name(entity.getName())
                           .action(entity.getAction())
                           .forwardsTo(helper.toSet(MailForwardingEntity.class, MailForwarding.class)
-                                            .apply(entity::getForwardsTo))
+                                            .map(entity::getForwardsTo))
                           .receivesFrom(helper.toSet(MailForwardingEntity.class, MailForwarding.class)
-                                              .apply(entity::getReceivesFrom))
-                          .mailboxes(helper.toSet(MailboxEntity.class, Mailbox.class).apply(entity::getMailboxes))
-                          .senders(helper.toSet(MailUserEntity.class, MailUser.class).apply(entity::getSenders))
+                                              .map(entity::getReceivesFrom))
+                          .mailboxes(helper.toSet(MailboxEntity.class, Mailbox.class).map(entity::getMailboxes))
+                          .senders(helper.toSet(MailUserEntity.class, MailUser.class).map(entity::getSenders))
                           .build();
     }
 }

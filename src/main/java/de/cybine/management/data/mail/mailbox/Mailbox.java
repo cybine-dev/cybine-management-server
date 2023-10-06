@@ -43,6 +43,11 @@ public class Mailbox implements Serializable, WithId<MailboxId>
     @JsonView(Views.Extended.class)
     private final Set<MailUser> users;
 
+    public Optional<String> getDescription( )
+    {
+        return Optional.ofNullable(this.description);
+    }
+
     public Optional<Set<MailAddress>> getSourceAddresses( )
     {
         return Optional.ofNullable(this.sourceAddresses);

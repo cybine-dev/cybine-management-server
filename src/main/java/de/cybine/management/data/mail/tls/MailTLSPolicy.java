@@ -39,6 +39,11 @@ public class MailTLSPolicy implements Serializable, WithId<MailTLSPolicyId>
         return Optional.ofNullable(this.domain);
     }
 
+    public Optional<String> getParams( )
+    {
+        return Optional.ofNullable(this.params);
+    }
+
     @Override
     public boolean equals(Object other)
     {

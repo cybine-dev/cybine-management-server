@@ -24,42 +24,49 @@ public class MailUserEntity extends PanacheEntityBase implements Serializable, W
     private static final long serialVersionUID = 1L;
 
     @Id
-    @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = MailUserEntity_.ID_COLUMN, nullable = false, unique = true)
     private Long id;
 
-    @NotNull
     @Column(name = MailUserEntity_.DOMAIN_ID_COLUMN, nullable = false, insertable = false, updatable = false)
     private long domainId;
 
-    @NotNull
     @ToString.Exclude
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = MailUserEntity_.DOMAIN_ID_COLUMN, nullable = false)
     private MailDomainEntity domain;
 
-    @NotNull
     @Size(min = 5, max = 255)
     @Column(name = MailUserEntity_.USERNAME_COLUMN, nullable = false)
     private String username;
 
-    @NotNull
     @Size(max = 255)
     @Column(name = MailUserEntity_.PASSWORD_COLUMN, nullable = false)
     private String passwordHash;
 
-    @NotNull
     @Column(name = MailUserEntity_.ENABLED_COLUMN, nullable = false)
     private Boolean isEnabled;
 
-    @NotNull
     @ManyToMany(mappedBy = MailboxEntity_.USERS_RELATION)
     private Set<MailboxEntity> mailboxes;
 
-    @NotNull
     @ManyToMany(mappedBy = MailAddressEntity_.SENDERS_RELATION)
     private Set<MailAddressEntity> permittedAddresses;
+
+    public Optional<MailDomainEntity> getDomain( )
+    {
+        return Optional.ofNullable(this.domain);
+    }
+
+    public Optional<Set<MailboxEntity>> getMailboxes( )
+    {
+        return Optional.ofNullable(this.mailboxes);
+    }
+
+    public Optional<Set<MailAddressEntity>> getPermittedAddresses( )
+    {
+        return Optional.ofNullable(this.permittedAddresses);
+    }
 
     @Override
     public boolean equals(Object other)

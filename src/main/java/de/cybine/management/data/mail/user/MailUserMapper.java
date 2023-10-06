@@ -1,6 +1,8 @@
 package de.cybine.management.data.mail.user;
 
+import de.cybine.management.data.mail.address.*;
 import de.cybine.management.data.mail.domain.*;
+import de.cybine.management.data.mail.mailbox.*;
 import de.cybine.management.data.util.*;
 import de.cybine.management.data.util.password.*;
 import de.cybine.management.data.util.primitive.*;
@@ -30,6 +32,9 @@ public class MailUserMapper implements EntityMapper<MailUserEntity, MailUser>
                              .username(data.getUsername().asString())
                              .passwordHash(data.getPasswordHash().asString())
                              .isEnabled(data.isEnabled())
+                             .mailboxes(helper.toSet(Mailbox.class, MailboxEntity.class).map(data::getMailboxes))
+                             .permittedAddresses(helper.toSet(MailAddress.class, MailAddressEntity.class)
+                                                       .map(data::getPermittedAddresses))
                              .build();
     }
 
@@ -39,10 +44,13 @@ public class MailUserMapper implements EntityMapper<MailUserEntity, MailUser>
         return MailUser.builder()
                        .id(MailUserId.of(entity.getId()))
                        .domainId(MailDomainId.of(entity.getDomainId()))
-                       .domain(helper.toItem(MailDomainEntity.class, MailDomain.class).apply(entity::getDomain))
+                       .domain(helper.toItem(MailDomainEntity.class, MailDomain.class).map(entity::getDomain))
                        .username(Username.of(entity.getUsername()))
                        .passwordHash(BCryptPasswordHash.of(entity.getPasswordHash()))
                        .isEnabled(entity.getIsEnabled())
+                       .mailboxes(helper.toSet(MailboxEntity.class, Mailbox.class).map(entity::getMailboxes))
+                       .permittedAddresses(helper.toSet(MailAddressEntity.class, MailAddress.class)
+                                                 .map(entity::getPermittedAddresses))
                        .build();
     }
 }

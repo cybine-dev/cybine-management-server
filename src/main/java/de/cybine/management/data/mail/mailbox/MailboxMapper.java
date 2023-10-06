@@ -25,7 +25,7 @@ public class MailboxMapper implements EntityMapper<MailboxEntity, Mailbox>
         return MailboxEntity.builder()
                             .id(data.findId().map(Id::getValue).orElse(null))
                             .name(data.getName())
-                            .description(data.getDescription())
+                            .description(data.getDescription().orElse(null))
                             .isEnabled(data.isEnabled())
                             .quota(data.getQuota())
                             .sourceAddresses(helper.toSet(MailAddress.class, MailAddressEntity.class)
@@ -40,12 +40,12 @@ public class MailboxMapper implements EntityMapper<MailboxEntity, Mailbox>
         return Mailbox.builder()
                       .id(MailboxId.of(entity.getId()))
                       .name(entity.getName())
-                      .description(entity.getDescription())
+                      .description(entity.getDescription().orElse(null))
                       .isEnabled(entity.getIsEnabled())
                       .quota(entity.getQuota())
                       .sourceAddresses(helper.toSet(MailAddressEntity.class, MailAddress.class)
-                                             .apply(entity::getSourceAddresses))
-                      .users(helper.toSet(MailUserEntity.class, MailUser.class).apply(entity::getUsers))
+                                             .map(entity::getSourceAddresses))
+                      .users(helper.toSet(MailUserEntity.class, MailUser.class).map(entity::getUsers))
                       .build();
     }
 }

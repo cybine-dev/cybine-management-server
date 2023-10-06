@@ -3,9 +3,7 @@ package de.cybine.management.data.mail.forwarding;
 import de.cybine.management.data.mail.address.*;
 import de.cybine.management.util.*;
 import io.quarkus.hibernate.orm.panache.*;
-import jakarta.annotation.*;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.io.*;
@@ -24,32 +22,46 @@ public class MailForwardingEntity extends PanacheEntityBase implements Serializa
     private static final long serialVersionUID = 1L;
 
     @Id
-    @NotNull
     @Column(name = MailForwardingEntity_.FORWARDING_ADDRESS_ID_COLUMN, insertable = false, updatable = false)
     private long forwardingAddressId;
 
-    @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = MailForwardingEntity_.FORWARDING_ADDRESS_ID_COLUMN, nullable = false)
     private MailAddressEntity forwardingAddress;
 
     @Id
-    @NotNull
     @Column(name = MailForwardingEntity_.RECEIVER_ADDRESS_ID_COLUMN, insertable = false, updatable = false)
     private long receiverAddressId;
 
-    @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = MailForwardingEntity_.RECEIVER_ADDRESS_ID_COLUMN, nullable = false)
     private MailAddressEntity receiverAddress;
 
-    @Nullable
     @Column(name = MailForwardingEntity_.STARTS_AT_COLUMN)
     private ZonedDateTime startsAt;
 
-    @Nullable
     @Column(name = MailForwardingEntity_.ENDS_AT_COLUMN)
     private ZonedDateTime endsAt;
+
+    public Optional<MailAddressEntity> getForwardingAddress( )
+    {
+        return Optional.ofNullable(this.forwardingAddress);
+    }
+
+    public Optional<MailAddressEntity> getReceiverAddress( )
+    {
+        return Optional.ofNullable(this.receiverAddress);
+    }
+
+    public Optional<ZonedDateTime> getStartsAt( )
+    {
+        return Optional.ofNullable(this.startsAt);
+    }
+
+    public Optional<ZonedDateTime> getEndsAt( )
+    {
+        return Optional.ofNullable(this.endsAt);
+    }
 
     @Override
     public MailForwarding.Id getId( )
