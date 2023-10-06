@@ -1,0 +1,25 @@
+package de.cybine.management.util.api.query;
+
+import com.fasterxml.jackson.annotation.*;
+import io.smallrye.common.constraint.*;
+import lombok.*;
+import lombok.extern.jackson.*;
+
+@Data
+@Jacksonized
+@Builder(builderClassName = "Generator")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class ApiOrderInfo
+{
+    @NotNull
+    @JsonProperty("property")
+    private final String property;
+
+    @Builder.Default
+    @JsonProperty("priority")
+    private final int priority = 100;
+
+    @Builder.Default
+    @JsonProperty("ascending")
+    private final boolean isAscending = true;
+}

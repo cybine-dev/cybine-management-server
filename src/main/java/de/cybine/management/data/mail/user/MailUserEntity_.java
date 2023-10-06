@@ -3,6 +3,7 @@ package de.cybine.management.data.mail.user;
 import de.cybine.management.data.mail.address.*;
 import de.cybine.management.data.mail.domain.*;
 import de.cybine.management.data.mail.mailbox.*;
+import de.cybine.management.util.api.datasource.*;
 import jakarta.persistence.metamodel.*;
 import lombok.experimental.*;
 
@@ -20,17 +21,28 @@ public class MailUserEntity_
     public static final String PASSWORD_COLUMN  = "password";
     public static final String ENABLED_COLUMN   = "enabled";
 
-    public static final String ID            = "id";
-    public static final String DOMAIN_ID     = "domainId";
-    public static final String USERNAME      = "username";
-    public static final String PASSWORD_HASH = "passwordHash";
-    public static final String IS_ENABLED    = "isEnabled";
+    // @formatter:off
+    public static final DatasourceField ID                  =
+            DatasourceField.property(MailUserEntity.class, "id", Long.class);
+    public static final DatasourceField DOMAIN_ID           =
+            DatasourceField.property(MailUserEntity.class, "domainId", Long.class);
+    public static final DatasourceField DOMAIN              =
+            DatasourceField.property(MailUserEntity.class, "domain", MailDomainEntity.class);
+    public static final DatasourceField USERNAME            =
+            DatasourceField.property(MailUserEntity.class, "username", String.class);
+    public static final DatasourceField PASSWORD_HASH       =
+            DatasourceField.property(MailUserEntity.class, "passwordHash", String.class);
+    public static final DatasourceField IS_ENABLED          =
+            DatasourceField.property(MailUserEntity.class, "isEnabled", Boolean.class);
+    public static final DatasourceField MAILBOXES           =
+            DatasourceField.property(MailUserEntity.class, "mailboxes", MailboxEntity.class);
+    public static final DatasourceField PERMITTED_ADDRESSES =
+            DatasourceField.property(MailUserEntity.class, "permittedAddresses", MailAddressEntity.class);
+    // @formatter:on
 
-    public static final String DOMAIN              = "domain";
-    public static final String MAILBOXES           = "mailboxes";
-    public static final String PERMITTED_ADDRESSES = "permittedAddresses";
-
-    public static final String[] RELATIONS = new String[] { DOMAIN, MAILBOXES, PERMITTED_ADDRESSES };
+    public static final String DOMAIN_RELATION              = "domain";
+    public static final String MAILBOXES_RELATION           = "mailboxes";
+    public static final String PERMITTED_ADDRESSES_RELATION = "permittedAddresses";
 
     public static volatile SingularAttribute<MailUserEntity, Long>             id;
     public static volatile SingularAttribute<MailUserEntity, Long>             domainId;
@@ -38,6 +50,6 @@ public class MailUserEntity_
     public static volatile SingularAttribute<MailUserEntity, String>           passwordHash;
     public static volatile SingularAttribute<MailUserEntity, Boolean>          isEnabled;
     public static volatile SingularAttribute<MailUserEntity, MailDomainEntity> domain;
-    public static volatile SetAttribute<MailUserEntity, MailboxEntity>     mailboxes;
-    public static volatile SetAttribute<MailUserEntity, MailAddressEntity> permittedAddresses;
+    public static volatile SetAttribute<MailUserEntity, MailboxEntity>         mailboxes;
+    public static volatile SetAttribute<MailUserEntity, MailAddressEntity>     permittedAddresses;
 }

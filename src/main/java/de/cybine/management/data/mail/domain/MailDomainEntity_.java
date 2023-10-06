@@ -3,6 +3,7 @@ package de.cybine.management.data.mail.domain;
 import de.cybine.management.data.mail.address.*;
 import de.cybine.management.data.mail.tls.*;
 import de.cybine.management.data.mail.user.*;
+import de.cybine.management.util.api.datasource.*;
 import jakarta.persistence.metamodel.*;
 import lombok.experimental.*;
 
@@ -18,15 +19,24 @@ public class MailDomainEntity_
     public static final String DOMAIN_COLUMN = "domain";
     public static final String ACTION_COLUMN = "action";
 
-    public static final String ID     = "id";
-    public static final String DOMAIN = "domain";
-    public static final String ACTION = "action";
+    // @formatter:off
+    public static final DatasourceField ID         =
+            DatasourceField.property(MailDomainEntity.class, "id", Long.class);
+    public static final DatasourceField DOMAIN     =
+            DatasourceField.property(MailDomainEntity.class, "domain", String.class);
+    public static final DatasourceField ACTION     =
+            DatasourceField.property(MailDomainEntity.class, "action", MailDomainAction.class);
+    public static final DatasourceField TLS_POLICY =
+            DatasourceField.property(MailDomainEntity.class, "tlsPolicy", MailUserEntity.class);
+    public static final DatasourceField USERS      =
+            DatasourceField.property(MailDomainEntity.class, "users", MailUserEntity.class);
+    public static final DatasourceField ADDRESSES  =
+            DatasourceField.property(MailDomainEntity.class, "addresses", MailAddressEntity.class);
+    // @formatter:on
 
-    public static final String TLS_POLICY = "tlsPolicy";
-    public static final String USERS      = "users";
-    public static final String ADDRESSES  = "addresses";
-
-    public static final String[] RELATIONS = new String[] { TLS_POLICY, USERS, ADDRESSES };
+    public static final String TLS_POLICY_RELATION = "tlsPolicy";
+    public static final String USERS_RELATION      = "users";
+    public static final String ADDRESSES_RELATION  = "addresses";
 
     public static volatile SingularAttribute<MailDomainEntity, Long>                id;
     public static volatile SingularAttribute<MailDomainEntity, String>              domain;

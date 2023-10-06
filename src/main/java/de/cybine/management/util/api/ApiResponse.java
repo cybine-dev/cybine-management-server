@@ -20,6 +20,7 @@ public class ApiResponse<T>
     @JsonProperty("value")
     private final T value;
 
+    @With
     @JsonProperty("self")
     private final ApiResourceInfo self;
 

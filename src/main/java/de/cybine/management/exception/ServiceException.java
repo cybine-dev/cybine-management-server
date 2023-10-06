@@ -1,29 +1,52 @@
 package de.cybine.management.exception;
 
+import de.cybine.management.util.*;
+import de.cybine.management.util.api.*;
+import lombok.*;
+import org.jboss.resteasy.reactive.RestResponse.*;
+
+import java.util.*;
+import java.util.stream.*;
+
+@Getter
 @SuppressWarnings("unused")
 public class ServiceException extends RuntimeException
 {
-    public ServiceException( )
+    protected final String code;
+    protected final Status status;
+
+    @Getter(AccessLevel.NONE)
+    protected final List<BiTuple<String, Object>> data = new ArrayList<>();
+
+    public ServiceException(String code, Status status, String message)
     {
+        this(message, status, code, null);
     }
 
-    public ServiceException(String message)
-    {
-        super(message);
-    }
-
-    public ServiceException(String message, Throwable cause)
+    public ServiceException(String code, Status status, String message, Throwable cause)
     {
         super(message, cause);
+
+        this.code = code;
+        this.status = status;
     }
 
-    public ServiceException(Throwable cause)
+    @SuppressWarnings("unchecked")
+    public <T extends ServiceException> T addData(String key, Object value)
     {
-        super(cause);
+        if (key == null || value == null)
+            throw new IllegalArgumentException("Key and value must not be null");
+
+        this.data.add(new BiTuple<>(key, value));
+        return (T) this;
     }
 
-    public ServiceException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
+    public ErrorResponse toResponse( )
     {
-        super(message, cause, enableSuppression, writableStackTrace);
+        return ErrorResponse.builder()
+                            .code(this.code)
+                            .message(this.getMessage())
+                            .data(this.data.stream().collect(Collectors.toMap(BiTuple::first, BiTuple::second)))
+                            .build();
     }
 }

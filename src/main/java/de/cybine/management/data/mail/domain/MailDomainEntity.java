@@ -40,16 +40,16 @@ public class MailDomainEntity implements Serializable, WithId<Long>
 
     @Nullable
     @ToString.Exclude
-    @OneToOne(mappedBy = MailTLSPolicyEntity_.DOMAIN, optional = false, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = MailTLSPolicyEntity_.DOMAIN_RELATION, optional = false, fetch = FetchType.LAZY)
     private MailTLSPolicyEntity tlsPolicy;
 
     @Nullable
     @ToString.Exclude
-    @OneToMany(mappedBy = MailUserEntity_.DOMAIN)
+    @OneToMany(mappedBy = MailUserEntity_.DOMAIN_RELATION)
     private Set<MailUserEntity> users;
 
     @Nullable
     @ToString.Exclude
-    @OneToMany(mappedBy = MailAddressEntity_.DOMAIN)
+    @OneToMany(mappedBy = MailAddressEntity_.DOMAIN_RELATION)
     private Set<MailAddressEntity> addresses;
 }

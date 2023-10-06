@@ -1,6 +1,7 @@
 package de.cybine.management.data.mail.tls;
 
 import de.cybine.management.data.mail.domain.*;
+import de.cybine.management.util.api.datasource.*;
 import jakarta.persistence.metamodel.*;
 import lombok.experimental.*;
 
@@ -17,18 +18,24 @@ public class MailTLSPolicyEntity_
     public static final String POLICY_COLUMN    = "policy";
     public static final String PARAMS_COLUMN    = "params";
 
-    public static final String ID        = "id";
-    public static final String DOMAIN_ID = "domainId";
-    public static final String POLICY    = "policy";
-    public static final String PARAMS    = "params";
+    // @formatter:off
+    public static final DatasourceField ID        =
+            DatasourceField.property(MailTLSPolicyEntity.class, "id", Long.class);
+    public static final DatasourceField DOMAIN_ID =
+            DatasourceField.property(MailTLSPolicyEntity.class, "domainId", Long.class);
+    public static final DatasourceField DOMAIN    =
+            DatasourceField.property(MailTLSPolicyEntity.class, "domain", MailDomainEntity.class);
+    public static final DatasourceField POLICY    =
+            DatasourceField.property(MailTLSPolicyEntity.class, "type", MailTLSPolicyType.class);
+    public static final DatasourceField PARAMS    =
+            DatasourceField.property(MailTLSPolicyEntity.class, "params", String.class);
+    // @formatter:on
 
-    public static final String DOMAIN = "domain";
-
-    public static final String[] RELATIONS = new String[] { DOMAIN };
+    public static final String DOMAIN_RELATION = "domain";
 
     public static volatile SingularAttribute<MailTLSPolicyEntity, Long>              id;
     public static volatile SingularAttribute<MailTLSPolicyEntity, Long>              domainId;
     public static volatile SingularAttribute<MailTLSPolicyEntity, MailDomainEntity>  domain;
-    public static volatile SingularAttribute<MailTLSPolicyEntity, MailTLSPolicyType> policy;
+    public static volatile SingularAttribute<MailTLSPolicyEntity, MailTLSPolicyType> type;
     public static volatile SingularAttribute<MailTLSPolicyEntity, String>            params;
 }

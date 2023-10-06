@@ -1,7 +1,7 @@
 package de.cybine.management.data.mail.forwarding;
 
-import de.cybine.management.data.action.process.*;
 import de.cybine.management.data.mail.address.*;
+import de.cybine.management.util.api.datasource.*;
 import jakarta.persistence.metamodel.*;
 import lombok.experimental.*;
 
@@ -9,7 +9,7 @@ import java.time.*;
 
 @UtilityClass
 @SuppressWarnings("unused")
-@StaticMetamodel(ActionProcessEntity.class)
+@StaticMetamodel(MailForwardingEntity.class)
 public class MailForwardingEntity_
 {
     public static final String TABLE  = "forwarding";
@@ -20,20 +20,28 @@ public class MailForwardingEntity_
     public static final String STARTS_AT_COLUMN             = "starts_at";
     public static final String ENDS_AT_COLUMN               = "ends_at";
 
-    public static final String RECEIVER_ADDRESS_ID   = "receiverAddressId";
-    public static final String FORWARDING_ADDRESS_ID = "forwardingAddressId";
-    public static final String STARTS_AT             = "startsAt";
-    public static final String ENDS_AT               = "endsAt";
+    // @formatter:off
+    public static final DatasourceField RECEIVER_ADDRESS_ID   =
+            DatasourceField.property(MailForwardingEntity.class, "receiverAddressId", Long.class);
+    public static final DatasourceField FORWARDING_ADDRESS    =
+            DatasourceField.property(MailForwardingEntity.class, "forwardingAddress", MailAddressEntity.class);
+    public static final DatasourceField FORWARDING_ADDRESS_ID =
+            DatasourceField.property(MailForwardingEntity.class, "forwardingAddressId", Long.class);
+    public static final DatasourceField RECEIVER_ADDRESS      =
+            DatasourceField.property(MailForwardingEntity.class, "receiverAddress", MailAddressEntity.class);
+    public static final DatasourceField STARTS_AT             =
+            DatasourceField.property(MailForwardingEntity.class, "startsAt", ZonedDateTime.class);
+    public static final DatasourceField ENDS_AT               =
+            DatasourceField.property(MailForwardingEntity.class, "endsAt", ZonedDateTime.class);
+    // @formatter:on
 
-    public static final String FORWARDING_ADDRESS = "forwardingAddress";
-    public static final String RECEIVER_ADDRESS   = "receiverAddress";
-
-    public static final String[] RELATIONS = new String[] { FORWARDING_ADDRESS, RECEIVER_ADDRESS };
+    public static final String FORWARDING_ADDRESS_RELATION = "forwardingAddress";
+    public static final String RECEIVER_ADDRESS_RELATION   = "receiverAddress";
 
     public static volatile SingularAttribute<MailForwardingEntity, Long>              receiverAddressId;
     public static volatile SingularAttribute<MailForwardingEntity, MailAddressEntity> receiverAddress;
     public static volatile SingularAttribute<MailForwardingEntity, Long>              forwardingAddressId;
     public static volatile SingularAttribute<MailForwardingEntity, MailAddressEntity> forwardingAddress;
-    public static volatile SingularAttribute<MailForwardingEntity, ZonedDateTime>     startedAt;
+    public static volatile SingularAttribute<MailForwardingEntity, ZonedDateTime>     startsAt;
     public static volatile SingularAttribute<MailForwardingEntity, ZonedDateTime>     endsAt;
 }

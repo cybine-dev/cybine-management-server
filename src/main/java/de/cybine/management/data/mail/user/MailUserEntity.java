@@ -53,10 +53,10 @@ public class MailUserEntity extends PanacheEntityBase implements Serializable, W
     private Boolean isEnabled;
 
     @NotNull
-    @ManyToMany(mappedBy = MailboxEntity_.USERS)
+    @ManyToMany(mappedBy = MailboxEntity_.USERS_RELATION)
     private Set<MailboxEntity> mailboxes;
 
     @NotNull
-    @ManyToMany(mappedBy = MailAddressEntity_.SENDERS)
+    @ManyToMany(mappedBy = MailAddressEntity_.SENDERS_RELATION)
     private Set<MailAddressEntity> permittedAddresses;
 }

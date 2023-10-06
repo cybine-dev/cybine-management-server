@@ -1,30 +1,22 @@
 package de.cybine.management.exception;
 
+import org.jboss.resteasy.reactive.*;
+
 @SuppressWarnings("unused")
-public class EntityConversionException extends RuntimeException
+public class EntityConversionException extends ServiceException
 {
-    public EntityConversionException( )
+    public EntityConversionException(String message)
     {
+        this(message, null);
     }
 
-    public EntityConversionException(final String message)
+    public EntityConversionException(Throwable cause)
     {
-        super(message);
+        this(null, cause);
     }
 
-    public EntityConversionException(final String message, final Throwable cause)
+    public EntityConversionException(String message, Throwable cause)
     {
-        super(message, cause);
-    }
-
-    public EntityConversionException(final Throwable cause)
-    {
-        super(cause);
-    }
-
-    public EntityConversionException(final String message, final Throwable cause, final boolean enableSuppression,
-            final boolean writableStackTrace)
-    {
-        super(message, cause, enableSuppression, writableStackTrace);
+        super("entity-conversion-error", RestResponse.Status.INTERNAL_SERVER_ERROR, message, cause);
     }
 }
