@@ -119,6 +119,9 @@ public class ConversionProcessor<I, O>
 
     private ConversionHelper createConversionHelper( )
     {
-        return new ConversionHelper(this.metadata.getRootNode(), this.converterResolver);
+        ConversionHelper helper = new ConversionHelper(this.metadata.getRootNode(), this.converterResolver);
+        this.context.forEach(item -> helper.withContext(item.first(), item.second()));
+
+        return helper;
     }
 }

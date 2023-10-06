@@ -147,7 +147,7 @@ public class ConversionHelper
             if (node == null)
                 return null;
 
-            return converter.convert(input, new ConversionHelper(node, this.converterResolver));
+            return converter.convert(input, this.createChildHelper(node));
         };
     }
 
@@ -329,6 +329,14 @@ public class ConversionHelper
     private <T extends Collection<?>> T processEmptyCollection(T collection, boolean allowEmptyCollection)
     {
         return allowEmptyCollection || !collection.isEmpty() ? collection : null;
+    }
+
+    private ConversionHelper createChildHelper(ConverterTreeNode node)
+    {
+        ConversionHelper helper = new ConversionHelper(node, this.converterResolver);
+        this.context.forEach(helper::withContext);
+
+        return helper;
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
