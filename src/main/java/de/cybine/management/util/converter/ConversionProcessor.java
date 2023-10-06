@@ -27,7 +27,7 @@ public class ConversionProcessor<I, O>
 
     private final ConverterResolver converterResolver;
 
-    private final List<Pair<String, Object>> context = new ArrayList<>();
+    private final List<BiTuple<String, Object>> context = new ArrayList<>();
 
     /**
      * Add copntext information
@@ -41,7 +41,7 @@ public class ConversionProcessor<I, O>
      */
     public ConversionProcessor<I, O> withContext(String property, Object value)
     {
-        this.context.add(new Pair<>(property, value));
+        this.context.add(new BiTuple<>(property, value));
         return this;
     }
 
