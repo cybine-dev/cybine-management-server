@@ -1,6 +1,6 @@
 package de.cybine.management.exception.handler;
 
-import de.cybine.management.util.api.*;
+import de.cybine.management.util.api.response.*;
 import org.hibernate.exception.*;
 import org.jboss.resteasy.reactive.*;
 import org.jboss.resteasy.reactive.server.*;

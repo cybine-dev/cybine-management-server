@@ -1,7 +1,7 @@
 package de.cybine.management.exception.handler;
 
 import de.cybine.management.exception.*;
-import de.cybine.management.util.api.*;
+import de.cybine.management.util.api.response.*;
 import io.vertx.core.http.*;
 import jakarta.ws.rs.core.*;
 import org.jboss.resteasy.reactive.*;

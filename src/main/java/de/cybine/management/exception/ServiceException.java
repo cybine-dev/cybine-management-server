@@ -1,7 +1,7 @@
 package de.cybine.management.exception;
 
 import de.cybine.management.util.*;
-import de.cybine.management.util.api.*;
+import de.cybine.management.util.api.response.*;
 import lombok.*;
 import org.jboss.resteasy.reactive.RestResponse.*;
 

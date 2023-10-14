@@ -1,4 +1,4 @@
-package de.cybine.management.util.api.datasource;
+package de.cybine.management.util.datasource;
 
 import de.cybine.management.util.*;
 import de.cybine.management.util.api.query.ApiConditionInfo.*;

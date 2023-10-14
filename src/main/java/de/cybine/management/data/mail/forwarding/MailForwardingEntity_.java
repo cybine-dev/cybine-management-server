@@ -1,7 +1,7 @@
 package de.cybine.management.data.mail.forwarding;
 
 import de.cybine.management.data.mail.address.*;
-import de.cybine.management.util.api.datasource.*;
+import de.cybine.management.util.datasource.*;
 import jakarta.persistence.metamodel.*;
 import lombok.experimental.*;
 

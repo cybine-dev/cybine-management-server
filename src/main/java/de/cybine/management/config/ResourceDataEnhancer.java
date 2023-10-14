@@ -1,7 +1,7 @@
 package de.cybine.management.config;
 
-import de.cybine.management.util.api.*;
 import de.cybine.management.util.api.query.*;
+import de.cybine.management.util.api.response.*;
 import io.vertx.core.http.*;
 import jakarta.enterprise.context.*;
 import jakarta.ws.rs.container.*;

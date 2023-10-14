@@ -3,7 +3,7 @@ package de.cybine.management.data.mail.domain;
 import de.cybine.management.data.mail.address.*;
 import de.cybine.management.data.mail.tls.*;
 import de.cybine.management.data.mail.user.*;
-import de.cybine.management.util.api.datasource.*;
+import de.cybine.management.util.datasource.*;
 import jakarta.persistence.metamodel.*;
 import lombok.experimental.*;
 

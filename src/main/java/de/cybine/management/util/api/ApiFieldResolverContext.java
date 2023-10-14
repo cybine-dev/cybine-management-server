@@ -1,7 +1,7 @@
 package de.cybine.management.util.api;
 
 import de.cybine.management.util.*;
-import de.cybine.management.util.api.datasource.*;
+import de.cybine.management.util.datasource.*;
 import lombok.*;
 import lombok.extern.slf4j.*;
 

@@ -1,4 +1,4 @@
-package de.cybine.management.util.api.datasource;
+package de.cybine.management.util.datasource;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.*;

@@ -1,7 +1,7 @@
 package de.cybine.management.exception.handler;
 
 import com.fasterxml.jackson.annotation.*;
-import de.cybine.management.util.api.*;
+import de.cybine.management.util.api.response.*;
 import jakarta.validation.*;
 import lombok.*;
 import lombok.extern.jackson.*;

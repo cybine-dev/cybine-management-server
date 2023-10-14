@@ -1,4 +1,4 @@
-package de.cybine.management.util.api.datasource;
+package de.cybine.management.util.datasource;
 
 /**
  * <p>API-specific interface to map a given input value to another datasource value</p>

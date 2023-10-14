@@ -1,4 +1,4 @@
-package de.cybine.management.util.api;
+package de.cybine.management.util.api.response;
 
 import com.fasterxml.jackson.annotation.*;
 import lombok.*;
