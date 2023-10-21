@@ -1,6 +1,6 @@
 package de.cybine.management.util.datasource;
 
-import de.cybine.management.exception.*;
+import de.cybine.management.exception.datasource.*;
 import de.cybine.management.util.*;
 import io.quarkus.arc.*;
 import jakarta.persistence.Parameter;

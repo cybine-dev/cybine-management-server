@@ -1,5 +1,6 @@
-package de.cybine.management.exception;
+package de.cybine.management.exception.datasource;
 
+import de.cybine.management.exception.*;
 import org.jboss.resteasy.reactive.*;
 
 @SuppressWarnings("unused")

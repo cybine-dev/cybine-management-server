@@ -2,7 +2,7 @@ package de.cybine.management.util.api.converter;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import de.cybine.management.exception.*;
+import de.cybine.management.exception.converter.*;
 import de.cybine.management.util.api.query.*;
 import de.cybine.management.util.api.query.ApiConditionDetail.*;
 import de.cybine.management.util.converter.*;
