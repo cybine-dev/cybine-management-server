@@ -4,7 +4,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
 		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
-    <changeSet id="mail-setup" author="f.boelter">
+    <changeSet id="v1.0.0-mail-setup" author="f.boelter">
         <createTable tableName="domains">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true"/>
@@ -268,5 +268,12 @@
                   AND users.enabled = 1
             ]]>
         </createView>
+
+        <insert tableName="action_metadata">
+            <column name="namespace">cybine-management-mail</column>
+            <column name="category">domain</column>
+            <column name="name">creation</column>
+            <column name="type">update</column>
+        </insert>
     </changeSet>
 </databaseChangeLog>
