@@ -63,15 +63,13 @@ If you want to learn more about building native executables, please consult http
 - Mailer ([guide](https://quarkus.io/guides/mailer)): Send emails
 - Mutiny ([guide](https://quarkus.io/guides/mutiny-primer)): Write reactive applications with the modern Reactive Programming library Mutiny
 - OpenID Connect ([guide](https://quarkus.io/guides/security-openid-connect)): Verify Bearer access tokens and authenticate users with Authorization Code Flow
-- OpenID Connect Client ([guide](https://quarkus.io/guides/security-openid-connect-client)): Get and refresh access tokens from OpenID Connect providers
-- OpenID Connect Client Filter Reactive ([guide](https://quarkus.io/guides/security-openid-connect-client)): Use Reactive RestClient filter to get and refresh access tokens with OpenId Connect Client and send them as HTTP Authorization Bearer tokens
-- OpenID Connect Token Propagation Reactive ([guide](https://quarkus.io/guides/security-openid-connect-client)): Use Reactive REST Client to propagate the incoming Bearer access token or token acquired from Authorization Code Flow as HTTP Authorization Bearer token
 - Quartz ([guide](https://quarkus.io/guides/quartz)): Schedule clustered tasks with Quartz
 - Qute ([guide](https://quarkus.io/guides/qute)): Offer templating support for web, email, etc in a build time, type-safe way
 - REST Client Reactive ([guide](https://quarkus.io/guides/rest-client-reactive)): Call REST services reactively
 - RESTEasy Reactive ([guide](https://quarkus.io/guides/resteasy-reactive)): A Jakarta REST implementation utilizing build time processing and Vert.x. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it.
 - SmallRye Fault Tolerance ([guide](https://quarkus.io/guides/smallrye-fault-tolerance)): Build fault-tolerant network services
 - SmallRye Health ([guide](https://quarkus.io/guides/smallrye-health)): Monitor service health
+- SmallRye JWT ([guide](https://quarkus.io/guides/security-jwt)): Using JWT RBAC
 - SmallRye OpenAPI ([guide](https://quarkus.io/guides/openapi-swaggerui)): Document your REST APIs with OpenAPI - comes with Swagger UI
 
 ## Provided Code
