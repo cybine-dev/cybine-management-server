@@ -21,12 +21,12 @@ public class ContextResource
     public RestResponse<Set<ActionContext>> fetch(@PathParam("namespace") String namespace,
             @PathParam("category") String category, @PathParam("name") String name, @QueryParam("id") String itemId)
     {
-        ActionContextInfo metadata = ActionContextInfo.builder()
-                                                      .namespace(namespace)
-                                                      .category(category)
-                                                      .name(name)
-                                                      .itemId(itemId)
-                                                      .build();
+        ActionContextMetadata metadata = ActionContextMetadata.builder()
+                                                              .namespace(namespace)
+                                                              .category(category)
+                                                              .name(name)
+                                                              .itemId(itemId)
+                                                              .build();
 
         return RestResponse.ok(this.actionService.fetchContexts(metadata));
     }

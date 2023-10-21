@@ -1,6 +1,9 @@
 package de.cybine.management.config;
 
 import com.fasterxml.jackson.databind.*;
+import de.cybine.management.data.action.context.*;
+import de.cybine.management.data.action.metadata.*;
+import de.cybine.management.data.action.process.*;
 import de.cybine.management.data.mail.address.*;
 import de.cybine.management.data.mail.domain.*;
 import de.cybine.management.data.mail.forwarding.*;
@@ -37,6 +40,10 @@ public class ConverterConfig
         this.registry.addConverter(new ApiPaginationInfoConverter());
         this.registry.addConverter(new ApiRelationInfoConverter());
         this.registry.addEntityMapper(new CountInfoMapper());
+
+        this.registry.addEntityMapper(new ActionContextMapper());
+        this.registry.addEntityMapper(new ActionMetadataMapper());
+        this.registry.addEntityMapper(new ActionProcessMapper());
 
         this.registry.addEntityMapper(new MailAddressMapper());
         this.registry.addEntityMapper(new MailDomainMapper());

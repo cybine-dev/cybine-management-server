@@ -44,6 +44,7 @@ dependencies {
 
     implementation("io.quarkiverse.amazonservices:quarkus-amazon-s3")
 
+    implementation("com.fasterxml.uuid:java-uuid-generator:4.1.0")
     implementation("org.mindrot:jbcrypt:0.4")
 
     testImplementation("io.quarkus:quarkus-junit5")
