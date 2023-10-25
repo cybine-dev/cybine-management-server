@@ -30,6 +30,8 @@ public class ApiRelationInfoConverter implements Converter<ApiRelationInfo, Data
                     String.format("Cannot traverse multiple elements while resolving relations (%s)",
                             input.getProperty()));
 
+        helper.withContext(ApiQueryConverter.DATA_TYPE_PROPERTY, path.getLast().getFieldType());
+
         return DatasourceRelationInfo.builder()
                                      .property(path.asString())
                                      .fetch(input.isFetch())
