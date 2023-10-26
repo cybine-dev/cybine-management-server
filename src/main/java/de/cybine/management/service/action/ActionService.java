@@ -23,6 +23,10 @@ public class ActionService
     private final ConverterRegistry       converterRegistry;
     private final ActionProcessorRegistry processorRegistry;
 
+    private final ContextService  contextService;
+    private final ProcessService  processService;
+    private final MetadataService metadataService;
+
     private final SessionFactory sessionFactory;
 
     private final SecurityContext securityContext;
@@ -54,13 +58,20 @@ public class ActionService
             transaction.begin();
 
             session.persist(entity);
-            session.persist(ActionProcessEntity.builder()
-                                               .context(entity)
-                                               .status(BaseActionProcessStatus.INITIALIZED.getName())
-                                               .creatorId(this.securityContext.getUserPrincipal() != null ?
-                                                       this.securityContext.getUserPrincipal().getName() : null)
-                                               .createdAt(ZonedDateTime.now())
-                                               .build());
+
+            ActionContextId contextId = ActionContextId.of(entity.getId());
+            ActionProcess process = ActionProcess.builder()
+                                                 .contextId(contextId)
+                                                 .context(ActionContext.builder().id(contextId).build())
+                                                 .status(BaseActionProcessStatus.INITIALIZED.getName())
+                                                 .creatorId(this.securityContext.getUserPrincipal() != null ?
+                                                         this.securityContext.getUserPrincipal().getName() : null)
+                                                 .createdAt(ZonedDateTime.now())
+                                                 .build();
+
+            session.persist(this.converterRegistry.getProcessor(ActionProcess.class, ActionProcessEntity.class)
+                                                  .toItem(process)
+                                                  .result());
 
             transaction.commit();
         }
@@ -107,8 +118,8 @@ public class ActionService
                 throw new UnknownActionStateException(
                         "Could not find action-state for context-id " + nextState.getContextId().getValue());
 
-            ActionContext context = this.fetchContextById(nextState.getContextId()).orElseThrow();
-            ActionMetadata metadata = this.fetchMetadataById(context.getMetadataId()).orElseThrow();
+            ActionContext context = this.contextService.fetchById(nextState.getContextId()).orElseThrow();
+            ActionMetadata metadata = this.metadataService.fetchById(context.getMetadataId()).orElseThrow();
             ActionProcessorMetadata processorMetadata = ActionProcessorMetadata.builder()
                                                                                .namespace(metadata.getNamespace())
                                                                                .category(metadata.getCategory())
@@ -124,25 +135,26 @@ public class ActionService
             if (!processor.shouldExecute(this, nextState))
                 throw new ActionPreconditionException(null);
 
-            long contextId = nextState.getContextId().getValue();
+            ActionContextId contextId = ActionContextId.of(nextState.getContextId().getValue());
             String creator = this.securityContext.getUserPrincipal() != null ?
                     this.securityContext.getUserPrincipal().getName() : null;
 
-            ActionProcessEntity process = ActionProcessEntity.builder()
-                                                             .context(ActionContextEntity.builder()
-                                                                                         .id(contextId)
-                                                                                         .build())
-                                                             .contextId(contextId)
-                                                             .status(nextState.getStatus())
-                                                             .priority(nextState.getPriority().orElse(100))
-                                                             .description(nextState.getDescription().orElse(null))
-                                                             .creatorId(creator)
-                                                             .createdAt(nextState.getCreatedAt())
-                                                             .dueAt(nextState.getDueAt().orElse(null))
-                                                             .data(nextState.getData().orElse(null))
-                                                             .build();
+            ActionProcess process = ActionProcess.builder()
+                                                 .contextId(contextId)
+                                                 .context(ActionContext.builder().id(contextId).build())
+                                                 .status(nextState.getStatus())
+                                                 .priority(nextState.getPriority().orElse(100))
+                                                 .description(nextState.getDescription().orElse(null))
+                                                 .creatorId(creator)
+                                                 .createdAt(nextState.getCreatedAt())
+                                                 .dueAt(nextState.getDueAt().orElse(null))
+                                                 .data(nextState.getData().map(ActionData::data).orElse(null))
+                                                 .build();
 
-            session.persist(process);
+            session.persist(this.converterRegistry.getProcessor(ActionProcess.class, ActionProcessEntity.class)
+                                                  .toItem(process)
+                                                  .result());
+
             T result = (T) processor.process(this, state);
 
             transaction.commit();
@@ -262,44 +274,6 @@ public class ActionService
         return this.converterRegistry.getProcessor(ActionContextEntity.class, ActionContext.class)
                                      .toSet(interpreter.prepareDataQuery().getResultList())
                                      .result();
-    }
-
-    public Optional<ActionMetadata> fetchMetadataById(ActionMetadataId id)
-    {
-        DatasourceConditionDetail<Long> idEquals = DatasourceHelper.isEqual(ActionMetadataEntity_.ID, id.getValue());
-
-        DatasourceConditionInfo condition = DatasourceHelper.and(idEquals);
-
-        DatasourceQueryInterpreter<ActionMetadataEntity> interpreter = DatasourceQueryInterpreter.of(
-                ActionMetadataEntity.class, DatasourceQuery.builder().condition(condition).build());
-
-        ConversionProcessor<ActionMetadataEntity, ActionMetadata> processor = this.converterRegistry.getProcessor(
-                ActionMetadataEntity.class, ActionMetadata.class);
-
-        return interpreter.prepareDataQuery()
-                          .getResultStream()
-                          .findAny()
-                          .map(processor::toItem)
-                          .map(ConversionResult::result);
-    }
-
-    public Optional<ActionContext> fetchContextById(ActionContextId id)
-    {
-        DatasourceConditionDetail<Long> idEquals = DatasourceHelper.isEqual(ActionContextEntity_.ID, id.getValue());
-
-        DatasourceConditionInfo condition = DatasourceHelper.and(idEquals);
-
-        DatasourceQueryInterpreter<ActionContextEntity> interpreter = DatasourceQueryInterpreter.of(
-                ActionContextEntity.class, DatasourceQuery.builder().condition(condition).build());
-
-        ConversionProcessor<ActionContextEntity, ActionContext> processor = this.converterRegistry.getProcessor(
-                ActionContextEntity.class, ActionContext.class);
-
-        return interpreter.prepareDataQuery()
-                          .getResultStream()
-                          .findAny()
-                          .map(processor::toItem)
-                          .map(ConversionResult::result);
     }
 
     public Optional<ActionProcess> fetchCurrentState(ActionContextId contextId)

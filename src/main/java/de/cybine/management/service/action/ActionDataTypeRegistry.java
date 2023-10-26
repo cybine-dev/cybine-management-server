@@ -24,6 +24,8 @@ public class ActionDataTypeRegistry
 
     public Optional<String> findTypeName(JavaType type)
     {
+        System.out.println(type);
+        System.out.println(this.dataTypes.entrySet());
         return this.dataTypes.entrySet()
                              .stream()
                              .filter(entry -> entry.getValue().equals(type))

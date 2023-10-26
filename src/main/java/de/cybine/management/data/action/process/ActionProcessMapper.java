@@ -4,7 +4,6 @@ import de.cybine.management.data.action.context.*;
 import de.cybine.management.data.util.primitive.*;
 import de.cybine.management.service.action.*;
 import de.cybine.management.util.converter.*;
-import lombok.*;
 
 public class ActionProcessMapper implements EntityMapper<ActionProcessEntity, ActionProcess>
 {
@@ -40,7 +39,6 @@ public class ActionProcessMapper implements EntityMapper<ActionProcessEntity, Ac
     }
 
     @Override
-    @SneakyThrows
     public ActionProcess toData(ActionProcessEntity entity, ConversionHelper helper)
     {
         return ActionProcess.builder()

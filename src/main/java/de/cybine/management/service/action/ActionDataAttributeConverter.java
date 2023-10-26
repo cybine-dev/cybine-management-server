@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.*;
 import de.cybine.management.exception.action.*;
 import io.quarkus.arc.*;
 import jakarta.persistence.*;
-import lombok.*;
 
 import java.util.*;
 
@@ -13,7 +12,6 @@ import java.util.*;
 public class ActionDataAttributeConverter implements AttributeConverter<ActionData<?>, String>
 {
     @Override
-    @SneakyThrows()
     public String convertToDatabaseColumn(ActionData<?> attribute)
     {
         if (attribute == null)
