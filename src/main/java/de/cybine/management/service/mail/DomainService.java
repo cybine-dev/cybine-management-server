@@ -8,7 +8,6 @@ import de.cybine.management.service.action.*;
 import de.cybine.management.service.mail.domain.*;
 import de.cybine.management.util.api.*;
 import de.cybine.management.util.api.query.*;
-import de.cybine.management.util.converter.*;
 import de.cybine.management.util.datasource.*;
 import io.quarkus.runtime.*;
 import jakarta.annotation.*;
@@ -36,8 +35,6 @@ public class DomainService
             MailDomainEntity.class, MailDomain.class);
 
     private final ApiFieldResolver resolver;
-
-    private final ConverterRegistry registry;
 
     private final ActionService           actionService;
     private final ActionProcessorRegistry processorRegistry;
