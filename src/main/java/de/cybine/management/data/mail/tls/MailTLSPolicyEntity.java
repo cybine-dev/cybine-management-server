@@ -28,7 +28,7 @@ public class MailTLSPolicyEntity extends PanacheEntityBase implements Serializab
     private Long id;
 
     @Column(name = MailTLSPolicyEntity_.DOMAIN_ID_COLUMN, nullable = false, insertable = false, updatable = false)
-    private long domainId;
+    private Long domainId;
 
     @ToString.Exclude
     @OneToOne(optional = false, fetch = FetchType.LAZY)

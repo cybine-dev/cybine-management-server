@@ -45,8 +45,7 @@ public class DomainService
     @PostConstruct
     public void setup( )
     {
-        this.resolver.getDefaultContext()
-                     .registerTypeRepresentation(MailDomain.class, MailDomainEntity.class)
+        this.resolver.registerTypeRepresentation(MailDomain.class, MailDomainEntity.class)
                      .registerField("id", ID)
                      .registerField("domain", DOMAIN)
                      .registerField("action", ACTION)

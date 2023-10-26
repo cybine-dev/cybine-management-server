@@ -101,6 +101,28 @@ public class ConversionHelper
     }
 
     /**
+     * Wrap field in an {@link Optional<T>}
+     *
+     * @param input
+     *         data to wrap in an {@link Optional<T>}
+     */
+    public <T> Optional<T> optional(Supplier<T> input)
+    {
+        return this.optional(input.get());
+    }
+
+    /**
+     * Wrap field in an {@link Optional<T>}
+     *
+     * @param input
+     *         data to wrap in an {@link Optional<T>}
+     */
+    public <T> Optional<T> optional(T input)
+    {
+        return Optional.ofNullable(input);
+    }
+
+    /**
      * Search for a converter and provide a {@link ConverterFunction} for a single item
      *
      * @param inputType

@@ -30,7 +30,7 @@ public class ActionProcessEntity implements Serializable, WithId<Long>
     private String eventId;
 
     @Column(name = ActionProcessEntity_.CONTEXT_ID_COLUMN, nullable = false, insertable = false, updatable = false)
-    private long contextId;
+    private Long contextId;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = ActionProcessEntity_.CONTEXT_ID_COLUMN, nullable = false)

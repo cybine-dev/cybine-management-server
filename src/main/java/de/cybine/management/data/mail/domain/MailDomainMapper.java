@@ -26,7 +26,7 @@ public class MailDomainMapper implements EntityMapper<MailDomainEntity, MailDoma
     {
         return MailDomainEntity.builder()
                                .id(data.findId().map(Id::getValue).orElse(null))
-                               .domain(data.getDomain().asString())
+                               .domain(helper.optional(data::getDomain).map(Domain::asString).orElse(null))
                                .action(data.getAction())
                                .tlsPolicy(helper.toItem(MailTLSPolicy.class, MailTLSPolicyEntity.class)
                                                 .map(data::getTlsPolicy))
@@ -40,14 +40,13 @@ public class MailDomainMapper implements EntityMapper<MailDomainEntity, MailDoma
     public MailDomain toData(MailDomainEntity entity, ConversionHelper helper)
     {
         return MailDomain.builder()
-                         .id(MailDomainId.of(entity.getId()))
-                         .domain(Domain.of(entity.getDomain()))
+                         .id(helper.optional(entity::getId).map(MailDomainId::of).orElse(null))
+                         .domain(helper.optional(entity::getDomain).map(Domain::of).orElse(null))
                          .action(entity.getAction())
                          .tlsPolicy(helper.toItem(MailTLSPolicyEntity.class, MailTLSPolicy.class)
                                           .map(entity::getTlsPolicy))
                          .users(helper.toSet(MailUserEntity.class, MailUser.class).map(entity::getUsers))
-                         .addresses(
-                                 helper.toSet(MailAddressEntity.class, MailAddress.class).map(entity::getAddresses))
+                         .addresses(helper.toSet(MailAddressEntity.class, MailAddress.class).map(entity::getAddresses))
                          .build();
     }
 }

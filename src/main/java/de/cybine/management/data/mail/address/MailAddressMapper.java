@@ -26,7 +26,7 @@ public class MailAddressMapper implements EntityMapper<MailAddressEntity, MailAd
     {
         return MailAddressEntity.builder()
                                 .id(data.findId().map(Id::getValue).orElse(null))
-                                .domainId(data.getDomainId().getValue())
+                                .domainId(helper.optional(data::getDomainId).map(Id::getValue).orElse(null))
                                 .domain(helper.toItem(MailDomain.class, MailDomainEntity.class).map(data::getDomain))
                                 .name(data.getName())
                                 .action(data.getAction())
@@ -44,7 +44,7 @@ public class MailAddressMapper implements EntityMapper<MailAddressEntity, MailAd
     {
         return MailAddress.builder()
                           .id(MailAddressId.of(entity.getId()))
-                          .domainId(MailDomainId.of(entity.getDomainId()))
+                          .domainId(helper.optional(entity::getDomainId).map(MailDomainId::of).orElse(null))
                           .domain(helper.toItem(MailDomainEntity.class, MailDomain.class).map(entity::getDomain))
                           .name(entity.getName())
                           .action(entity.getAction())

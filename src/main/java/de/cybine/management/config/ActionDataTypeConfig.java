@@ -2,6 +2,7 @@ package de.cybine.management.config;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.*;
+import de.cybine.management.data.mail.domain.*;
 import de.cybine.management.service.action.*;
 import io.quarkus.runtime.*;
 import jakarta.annotation.*;
@@ -21,5 +22,7 @@ public class ActionDataTypeConfig
     public void setup( )
     {
         TypeFactory typeFactory = this.objectMapper.getTypeFactory();
+
+        this.registry.registerType("de.cybine.management.v1.mail.domain", typeFactory.constructType(MailDomain.class));
     }
 }

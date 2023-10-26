@@ -38,13 +38,13 @@ public class MailboxMapper implements EntityMapper<MailboxEntity, Mailbox>
     public Mailbox toData(MailboxEntity entity, ConversionHelper helper)
     {
         return Mailbox.builder()
-                      .id(MailboxId.of(entity.getId()))
+                      .id(helper.optional(entity::getId).map(MailboxId::of).orElse(null))
                       .name(entity.getName())
                       .description(entity.getDescription().orElse(null))
                       .isEnabled(entity.getIsEnabled())
                       .quota(entity.getQuota())
-                      .sourceAddresses(helper.toSet(MailAddressEntity.class, MailAddress.class)
-                                             .map(entity::getSourceAddresses))
+                      .sourceAddresses(
+                              helper.toSet(MailAddressEntity.class, MailAddress.class).map(entity::getSourceAddresses))
                       .users(helper.toSet(MailUserEntity.class, MailUser.class).map(entity::getUsers))
                       .build();
     }

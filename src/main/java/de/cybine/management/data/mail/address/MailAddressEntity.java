@@ -31,7 +31,7 @@ public class MailAddressEntity extends PanacheEntityBase implements Serializable
     private Long id;
 
     @Column(name = MailAddressEntity_.DOMAIN_ID_COLUMN, nullable = false, insertable = false, updatable = false)
-    private long domainId;
+    private Long domainId;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = MailAddressEntity_.DOMAIN_ID_COLUMN, nullable = false)

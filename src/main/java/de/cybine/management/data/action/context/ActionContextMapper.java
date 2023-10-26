@@ -24,7 +24,7 @@ public class ActionContextMapper implements EntityMapper<ActionContextEntity, Ac
     {
         return ActionContextEntity.builder()
                                   .id(data.findId().map(Id::getValue).orElse(null))
-                                  .metadataId(data.findId().map(ActionContextId::getValue).orElse(null))
+                                  .metadataId(helper.optional(data::getMetadataId).map(Id::getValue).orElse(null))
                                   .metadata(helper.toItem(ActionMetadata.class, ActionMetadataEntity.class)
                                                   .map(data::getMetadata))
                                   .correlationId(data.getCorrelationId())
@@ -39,7 +39,7 @@ public class ActionContextMapper implements EntityMapper<ActionContextEntity, Ac
     {
         return ActionContext.builder()
                             .id(ActionContextId.of(entity.getId()))
-                            .metadataId(ActionMetadataId.of(entity.getMetadataId()))
+                            .metadataId(helper.optional(entity::getMetadataId).map(ActionMetadataId::of).orElse(null))
                             .metadata(helper.toItem(ActionMetadataEntity.class, ActionMetadata.class)
                                             .map(entity::getMetadata))
                             .correlationId(entity.getCorrelationId())

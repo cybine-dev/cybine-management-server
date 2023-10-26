@@ -1,6 +1,7 @@
 package de.cybine.management.data.mail.forwarding;
 
 import de.cybine.management.data.mail.address.*;
+import de.cybine.management.data.util.primitive.*;
 import de.cybine.management.util.converter.*;
 
 public class MailForwardingMapper implements EntityMapper<MailForwardingEntity, MailForwarding>
@@ -21,10 +22,12 @@ public class MailForwardingMapper implements EntityMapper<MailForwardingEntity, 
     public MailForwardingEntity toEntity(MailForwarding data, ConversionHelper helper)
     {
         return MailForwardingEntity.builder()
-                                   .forwardingAddressId(data.getForwardingAddressId().getValue())
+                                   .forwardingAddressId(
+                                           helper.optional(data::getForwardingAddressId).map(Id::getValue).orElse(null))
                                    .forwardingAddress(helper.toItem(MailAddress.class, MailAddressEntity.class)
                                                             .map(data::getForwardingAddress))
-                                   .receiverAddressId(data.getReceiverAddressId().getValue())
+                                   .receiverAddressId(
+                                           helper.optional(data::getReceiverAddressId).map(Id::getValue).orElse(null))
                                    .receiverAddress(helper.toItem(MailAddress.class, MailAddressEntity.class)
                                                           .map(data::getReceiverAddress))
                                    .startsAt(data.getStartsAt().orElse(null))
@@ -36,10 +39,13 @@ public class MailForwardingMapper implements EntityMapper<MailForwardingEntity, 
     public MailForwarding toData(MailForwardingEntity entity, ConversionHelper helper)
     {
         return MailForwarding.builder()
-                             .forwardingAddressId(MailAddressId.of(entity.getForwardingAddressId()))
+                             .forwardingAddressId(helper.optional(entity::getForwardingAddressId)
+                                                        .map(MailAddressId::of)
+                                                        .orElse(null))
                              .forwardingAddress(helper.toItem(MailAddressEntity.class, MailAddress.class)
                                                       .map(entity::getForwardingAddress))
-                             .receiverAddressId(MailAddressId.of(entity.getReceiverAddressId()))
+                             .receiverAddressId(
+                                     helper.optional(entity::getReceiverAddressId).map(MailAddressId::of).orElse(null))
                              .receiverAddress(helper.toItem(MailAddressEntity.class, MailAddress.class)
                                                     .map(entity::getReceiverAddress))
                              .startsAt(entity.getStartsAt().orElse(null))

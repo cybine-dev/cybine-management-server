@@ -26,8 +26,7 @@ public class AddressService
     @PostConstruct
     void setup( )
     {
-        this.resolver.getDefaultContext()
-                     .registerTypeRepresentation(MailAddress.class, MailAddressEntity.class)
+        this.resolver.registerTypeRepresentation(MailAddress.class, MailAddressEntity.class)
                      .registerField("id", ID)
                      .registerField("domain_id", DOMAIN_ID)
                      .registerField("domain", DOMAIN)

@@ -24,7 +24,6 @@ public class ActionService
     private final ActionProcessorRegistry processorRegistry;
 
     private final ContextService  contextService;
-    private final ProcessService  processService;
     private final MetadataService metadataService;
 
     private final SessionFactory sessionFactory;
@@ -41,7 +40,7 @@ public class ActionService
             throw new AmbiguousActionException(
                     String.format("Action ns(%s) cat(%s) name(%s) already active for item-id %s",
                             contextMetadata.getNamespace(), contextMetadata.getCategory(), contextMetadata.getName(),
-                            contextMetadata.getItemId().get()));
+                            contextMetadata.getItemId().orElseThrow()));
 
         ConverterTree converterTree = ConverterTree.create();
         ActionContext context = ActionContext.builder()
@@ -61,7 +60,6 @@ public class ActionService
 
             ActionContextId contextId = ActionContextId.of(entity.getId());
             ActionProcess process = ActionProcess.builder()
-                                                 .contextId(contextId)
                                                  .context(ActionContext.builder().id(contextId).build())
                                                  .status(BaseActionProcessStatus.INITIALIZED.getName())
                                                  .creatorId(this.securityContext.getUserPrincipal() != null ?
@@ -140,7 +138,6 @@ public class ActionService
                     this.securityContext.getUserPrincipal().getName() : null;
 
             ActionProcess process = ActionProcess.builder()
-                                                 .contextId(contextId)
                                                  .context(ActionContext.builder().id(contextId).build())
                                                  .status(nextState.getStatus())
                                                  .priority(nextState.getPriority().orElse(100))
@@ -165,19 +162,9 @@ public class ActionService
 
     public Optional<ActionMetadata> fetchMetadata(ActionContextMetadata context)
     {
-        DatasourceConditionDetail<String> namespaceEquals = DatasourceHelper.isEqual(ActionMetadataEntity_.NAMESPACE,
-                context.getNamespace());
-
-        DatasourceConditionDetail<String> categoryEquals = DatasourceHelper.isEqual(ActionMetadataEntity_.CATEGORY,
-                context.getCategory());
-
-        DatasourceConditionDetail<String> nameEquals = DatasourceHelper.isEqual(ActionMetadataEntity_.NAME,
-                context.getName());
-
-        DatasourceConditionInfo condition = DatasourceHelper.and(namespaceEquals, categoryEquals, nameEquals);
-
         DatasourceQueryInterpreter<ActionMetadataEntity> interpreter = DatasourceQueryInterpreter.of(
-                ActionMetadataEntity.class, DatasourceQuery.builder().condition(condition).build());
+                ActionMetadataEntity.class,
+                DatasourceQuery.builder().condition(this.getMetadataCondition(context)).build());
 
         ConversionProcessor<ActionMetadataEntity, ActionMetadata> processor = this.converterRegistry.getProcessor(
                 ActionMetadataEntity.class, ActionMetadata.class);
@@ -191,17 +178,16 @@ public class ActionService
 
     public Set<ActionContext> fetchActiveContexts(ActionContextMetadata context)
     {
-        DatasourceConditionDetail<String> namespaceEquals = DatasourceHelper.isEqual(ActionMetadataEntity_.NAMESPACE,
-                context.getNamespace());
+        return this.fetchContexts(context, true);
+    }
 
-        DatasourceConditionDetail<String> categoryEquals = DatasourceHelper.isEqual(ActionMetadataEntity_.CATEGORY,
-                context.getCategory());
+    public Set<ActionContext> fetchContexts(ActionContextMetadata context)
+    {
+        return this.fetchContexts(context, false);
+    }
 
-        DatasourceConditionDetail<String> nameEquals = DatasourceHelper.isEqual(ActionMetadataEntity_.NAME,
-                context.getName());
-
-        DatasourceConditionInfo metadataCondition = DatasourceHelper.and(namespaceEquals, categoryEquals, nameEquals);
-
+    private Set<ActionContext> fetchContexts(ActionContextMetadata context, boolean activeOnly)
+    {
         DatasourceConditionDetail<Void> noItemId = DatasourceHelper.isNull(ActionContextEntity_.ITEM_ID);
         DatasourceConditionDetail<String> itemIdEquals = DatasourceHelper.isEqual(ActionContextEntity_.ITEM_ID,
                 context.getItemId().orElse(null));
@@ -209,14 +195,14 @@ public class ActionService
         DatasourceConditionInfo condition = DatasourceHelper.and(
                 context.getItemId().isPresent() ? itemIdEquals : noItemId);
 
-        DatasourceConditionDetail<String> notTerminated = DatasourceHelper.isNotPresent(ActionProcessEntity_.STATUS,
-                BaseActionProcessStatus.TERMINATED.getName());
-
         DatasourceRelationInfo metadataRelation = DatasourceRelationInfo.builder()
                                                                         .property(
                                                                                 ActionContextEntity_.METADATA.getName())
-                                                                        .condition(metadataCondition)
+                                                                        .condition(this.getMetadataCondition(context))
                                                                         .build();
+
+        DatasourceConditionDetail<String> notTerminated = DatasourceHelper.isNotPresent(ActionProcessEntity_.STATUS,
+                BaseActionProcessStatus.TERMINATED.getName());
 
         DatasourceRelationInfo processRelation = DatasourceRelationInfo.builder()
                                                                        .property(
@@ -224,19 +210,19 @@ public class ActionService
                                                                        .condition(DatasourceHelper.and(notTerminated))
                                                                        .build();
 
+        DatasourceQuery.Generator query = DatasourceQuery.builder().condition(condition).relation(metadataRelation);
+        if (activeOnly)
+            query.relation(processRelation);
+
         DatasourceQueryInterpreter<ActionContextEntity> interpreter = DatasourceQueryInterpreter.of(
-                ActionContextEntity.class, DatasourceQuery.builder()
-                                                          .condition(condition)
-                                                          .relation(metadataRelation)
-                                                          .relation(processRelation)
-                                                          .build());
+                ActionContextEntity.class, query.build());
 
         return this.converterRegistry.getProcessor(ActionContextEntity.class, ActionContext.class)
                                      .toSet(interpreter.prepareDataQuery().getResultList())
                                      .result();
     }
 
-    public Set<ActionContext> fetchContexts(ActionContextMetadata context)
+    private DatasourceConditionInfo getMetadataCondition(ActionContextMetadata context)
     {
         DatasourceConditionDetail<String> namespaceEquals = DatasourceHelper.isEqual(ActionMetadataEntity_.NAMESPACE,
                 context.getNamespace());
@@ -247,33 +233,7 @@ public class ActionService
         DatasourceConditionDetail<String> nameEquals = DatasourceHelper.isEqual(ActionMetadataEntity_.NAME,
                 context.getName());
 
-        DatasourceConditionInfo metadataCondition = DatasourceHelper.and(namespaceEquals, categoryEquals, nameEquals);
-
-        DatasourceConditionDetail<Void> noItemId = DatasourceHelper.isNull(ActionContextEntity_.ITEM_ID);
-        DatasourceConditionDetail<String> itemIdEquals = DatasourceHelper.isEqual(ActionContextEntity_.ITEM_ID,
-                context.getItemId().orElse(null));
-
-        DatasourceConditionInfo condition = DatasourceHelper.and(
-                context.getItemId().isPresent() ? itemIdEquals : noItemId);
-
-        DatasourceRelationInfo metadataRelation = DatasourceRelationInfo.builder()
-                                                                        .property(
-                                                                                ActionContextEntity_.METADATA.getName())
-                                                                        .fetch(true)
-                                                                        .condition(metadataCondition)
-                                                                        .build();
-
-        DatasourceQueryInterpreter<ActionContextEntity> interpreter = DatasourceQueryInterpreter.of(
-                ActionContextEntity.class, DatasourceQuery.builder()
-                                                          .condition(condition)
-                                                          .relation(metadataRelation)
-                                                          .relation(DatasourceHelper.fetch(
-                                                                  ActionContextEntity_.PROCESSES))
-                                                          .build());
-
-        return this.converterRegistry.getProcessor(ActionContextEntity.class, ActionContext.class)
-                                     .toSet(interpreter.prepareDataQuery().getResultList())
-                                     .result();
+        return DatasourceHelper.and(namespaceEquals, categoryEquals, nameEquals);
     }
 
     public Optional<ActionProcess> fetchCurrentState(ActionContextId contextId)

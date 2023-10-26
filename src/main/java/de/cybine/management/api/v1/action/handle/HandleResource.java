@@ -70,6 +70,7 @@ public class HandleResource implements HandleApi
             try
             {
                 JavaType dataType = this.typeRegistry.findType((String) data.get("@type")).orElseThrow();
+
                 String serializedData = this.objectMapper.writeValueAsString(data);
                 actionData = ActionData.of(this.objectMapper.readValue(serializedData, dataType));
             }

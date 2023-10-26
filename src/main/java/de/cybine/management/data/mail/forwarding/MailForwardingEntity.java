@@ -23,7 +23,7 @@ public class MailForwardingEntity extends PanacheEntityBase implements Serializa
 
     @Id
     @Column(name = MailForwardingEntity_.FORWARDING_ADDRESS_ID_COLUMN, insertable = false, updatable = false)
-    private long forwardingAddressId;
+    private Long forwardingAddressId;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = MailForwardingEntity_.FORWARDING_ADDRESS_ID_COLUMN, nullable = false)
@@ -31,7 +31,7 @@ public class MailForwardingEntity extends PanacheEntityBase implements Serializa
 
     @Id
     @Column(name = MailForwardingEntity_.RECEIVER_ADDRESS_ID_COLUMN, insertable = false, updatable = false)
-    private long receiverAddressId;
+    private Long receiverAddressId;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = MailForwardingEntity_.RECEIVER_ADDRESS_ID_COLUMN, nullable = false)

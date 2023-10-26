@@ -29,7 +29,7 @@ public class MailUserEntity extends PanacheEntityBase implements Serializable, W
     private Long id;
 
     @Column(name = MailUserEntity_.DOMAIN_ID_COLUMN, nullable = false, insertable = false, updatable = false)
-    private long domainId;
+    private Long domainId;
 
     @ToString.Exclude
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
