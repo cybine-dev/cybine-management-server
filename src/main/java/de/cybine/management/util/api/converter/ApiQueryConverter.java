@@ -48,16 +48,15 @@ public class ApiQueryConverter implements Converter<ApiQuery, DatasourceQuery>
         if (name == null)
             throw new UnknownRelationException("No field name specified");
 
-        ApiFieldResolver resolver = Arc.container().select(ApiFieldResolver.class).get();
-
         String contextName = helper.getContextOrThrow(ApiQueryConverter.CONTEXT_PROPERTY);
         ServiceException unknownContextError = new UnknownApiContextException("Unable to find context").addData(
                 ApiQueryConverter.CONTEXT_PROPERTY, contextName);
 
+        ApiFieldResolver resolver = Arc.container().select(ApiFieldResolver.class).get();
         ApiFieldResolverContext context = resolver.findContext(contextName).orElseThrow(( ) -> unknownContextError);
 
         Class<?> type = helper.getContextOrThrow(ApiQueryConverter.DATA_TYPE_PROPERTY);
-        Type dataType = context.findRepresentationType(type).orElse(type);
+        Type dataType = resolver.findRepresentationType(type).orElse(type);
 
         ServiceException unknownFieldError = new UnknownApiContextException("Unable to find field").addData("name",
                 name).addData("type", dataType.getTypeName()).addData(ApiQueryConverter.CONTEXT_PROPERTY, contextName);

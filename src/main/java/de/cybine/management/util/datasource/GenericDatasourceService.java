@@ -18,6 +18,7 @@ public class GenericDatasourceService<E, D>
     private final Class<E> entityType;
     private final Class<D> dataType;
 
+    private final ApiFieldResolver  fieldResolver;
     private final ConverterRegistry registry;
 
     private final GenericDatasourceRepository<E> repository;
@@ -100,11 +101,18 @@ public class GenericDatasourceService<E, D>
 
     private <T> DatasourceQuery getDatasourceQuery(Class<T> type, T query)
     {
+        return this.getDatasourceQuery(type, query, this.fieldResolver.getUserContext().getContextName());
+    }
+
+    private <T> DatasourceQuery getDatasourceQuery(Class<T> type, T query, String context)
+    {
         ConverterConstraint constraint = ConverterConstraint.builder().allowEmptyCollection(true).maxDepth(20).build();
         ConverterTree tree = ConverterTree.builder().constraint(constraint).build();
 
+        System.out.println(context);
+
         return this.registry.getProcessor(type, DatasourceQuery.class, tree)
-                            .withContext(ApiQueryConverter.CONTEXT_PROPERTY, ApiFieldResolver.DEFAULT_CONTEXT)
+                            .withContext(ApiQueryConverter.CONTEXT_PROPERTY, context)
                             .withContext(ApiQueryConverter.DATA_TYPE_PROPERTY, this.dataType)
                             .toItem(query)
                             .result();
@@ -128,16 +136,18 @@ public class GenericDatasourceService<E, D>
 
     public static <E, D> GenericDatasourceService<E, D> forType(Class<E> entityType, Class<D> dataType)
     {
+        ApiFieldResolver fieldResolver = Arc.container().select(ApiFieldResolver.class).get();
         ConverterRegistry registry = Arc.container().select(ConverterRegistry.class).get();
-        return GenericDatasourceService.forType(entityType, dataType, registry);
+
+        return GenericDatasourceService.forType(entityType, dataType, fieldResolver, registry);
     }
 
     public static <E, D> GenericDatasourceService<E, D> forType(Class<E> entityType, Class<D> dataType,
-            ConverterRegistry registry)
+            ApiFieldResolver fieldResolver, ConverterRegistry registry)
     {
         GenericDatasourceRepository<E> repository = GenericDatasourceRepository.forType(entityType);
         InjectableInstance<ApiPaginationInfo> pagination = Arc.container().select(ApiPaginationInfo.class);
 
-        return new GenericDatasourceService<>(entityType, dataType, registry, repository, pagination);
+        return new GenericDatasourceService<>(entityType, dataType, fieldResolver, registry, repository, pagination);
     }
 }

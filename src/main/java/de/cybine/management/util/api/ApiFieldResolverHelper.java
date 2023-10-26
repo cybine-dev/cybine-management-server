@@ -6,15 +6,15 @@ import lombok.*;
 import java.lang.reflect.*;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public class ApiFieldResolverContextHelper
+public class ApiFieldResolverHelper
 {
-    private final ApiFieldResolverContext context;
+    private final ApiFieldResolver resolver;
 
     private final Type dataType;
 
-    public ApiFieldResolverContextHelper registerField(String alias, DatasourceField field)
+    public ApiFieldResolverHelper registerField(String alias, DatasourceField field)
     {
-        this.context.registerField(this.dataType, alias, field);
+        this.resolver.registerField(this.dataType, alias, field);
         return this;
     }
 }
