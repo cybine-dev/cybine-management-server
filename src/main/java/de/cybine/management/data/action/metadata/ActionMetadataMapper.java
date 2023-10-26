@@ -2,6 +2,7 @@ package de.cybine.management.data.action.metadata;
 
 import de.cybine.management.data.action.context.*;
 import de.cybine.management.util.converter.*;
+import de.cybine.management.util.datasource.*;
 
 import java.util.*;
 
@@ -27,7 +28,9 @@ public class ActionMetadataMapper implements EntityMapper<ActionMetadataEntity, 
                                    .namespace(data.getNamespace())
                                    .category(data.getCategory())
                                    .name(data.getName())
-                                   .type(helper.optional(data::getType).map(Enum::name).orElse(null))
+                                   .type(helper.optional(data::getType)
+                                               .map(WithDatasourceKey::getDatasourceKey)
+                                               .orElse(null))
                                    .contexts(helper.toSet(ActionContext.class, ActionContextEntity.class)
                                                    .map(data::getContexts))
                                    .build();
