@@ -27,7 +27,7 @@ public class DomainCreationProcessor implements ActionProcessor<MailDomain>
     @Override
     public ActionProcessorResult<MailDomain> process(ActionService service, ActionProcess previousState)
     {
-        MailDomain domain = previousState.<MailDomain>getData().orElseThrow();
+        MailDomain domain = previousState.<MailDomain>getData().map(ActionData::value).orElseThrow();
         MailDomainEntity entity = this.converterRegistry.get()
                                                         .getProcessor(MailDomain.class, MailDomainEntity.class)
                                                         .toItem(domain)

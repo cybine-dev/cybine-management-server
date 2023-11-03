@@ -3,6 +3,7 @@ package de.cybine.management.data.action.process;
 import com.fasterxml.jackson.annotation.*;
 import de.cybine.management.data.action.context.*;
 import de.cybine.management.data.util.*;
+import de.cybine.management.service.action.*;
 import de.cybine.management.util.*;
 import lombok.*;
 import lombok.extern.jackson.*;
@@ -54,7 +55,7 @@ public class ActionProcess implements Serializable, WithId<ActionProcessId>
     private final ZonedDateTime dueAt;
 
     @JsonProperty("data")
-    private final Object data;
+    private final ActionData<?> data;
 
     public Optional<Integer> getPriority( )
     {
@@ -82,9 +83,9 @@ public class ActionProcess implements Serializable, WithId<ActionProcessId>
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> getData( )
+    public <T> Optional<ActionData<T>> getData( )
     {
-        return Optional.ofNullable((T) this.data);
+        return Optional.ofNullable((ActionData<T>) this.data);
     }
 
     @Override

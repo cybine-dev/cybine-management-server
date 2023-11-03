@@ -4,6 +4,8 @@ import de.cybine.management.data.action.context.*;
 import de.cybine.management.data.action.process.*;
 import de.cybine.management.util.api.*;
 import de.cybine.management.util.api.query.*;
+import de.cybine.management.util.cloudevent.*;
+import de.cybine.management.util.converter.*;
 import de.cybine.management.util.datasource.*;
 import io.quarkus.runtime.*;
 import jakarta.annotation.*;
@@ -23,7 +25,8 @@ public class ProcessService
             GenericDatasourceService.forType(
             ActionProcessEntity.class, ActionProcess.class);
 
-    private final ApiFieldResolver resolver;
+    private final ApiFieldResolver  resolver;
+    private final ConverterRegistry converterRegistry;
 
     @PostConstruct
     void setup( )
@@ -90,5 +93,43 @@ public class ProcessService
     public List<ApiCountInfo> fetchTotal(ApiCountQuery query)
     {
         return this.service.fetchTotal(query);
+    }
+
+    public Optional<CloudEvent> fetchAsCloudEventByEventId(UUID eventId)
+    {
+        DatasourceConditionDetail<String> idEquals = DatasourceHelper.isEqual(EVENT_ID, eventId.toString());
+        DatasourceConditionInfo condition = DatasourceHelper.and(idEquals);
+
+        DatasourceRelationInfo metadataRelation = DatasourceHelper.fetch(ActionContextEntity_.METADATA);
+        DatasourceRelationInfo contextRelation = DatasourceRelationInfo.builder()
+                                                                       .property(CONTEXT.getName())
+                                                                       .fetch(true)
+                                                                       .relation(metadataRelation)
+                                                                       .build();
+
+        DatasourceQuery query = DatasourceQuery.builder().condition(condition).relation(contextRelation).build();
+        return this.service.fetchSingle(query)
+                           .map(this.converterRegistry.getProcessor(ActionProcess.class, CloudEvent.class)::toItem)
+                           .map(ConversionResult::result);
+    }
+
+    public List<CloudEvent> fetchAsCloudEventsByCorrelationId(UUID correlationId)
+    {
+        DatasourceConditionDetail<String> idEquals = DatasourceHelper.isEqual(ActionContextEntity_.CORRELATION_ID,
+                correlationId.toString());
+        DatasourceConditionInfo condition = DatasourceHelper.and(idEquals);
+
+        DatasourceRelationInfo metadataRelation = DatasourceHelper.fetch(ActionContextEntity_.METADATA);
+        DatasourceRelationInfo contextRelation = DatasourceRelationInfo.builder()
+                                                                       .property(CONTEXT.getName())
+                                                                       .fetch(true)
+                                                                       .condition(condition)
+                                                                       .relation(metadataRelation)
+                                                                       .build();
+
+        DatasourceQuery query = DatasourceQuery.builder().relation(contextRelation).build();
+        return this.converterRegistry.getProcessor(ActionProcess.class, CloudEvent.class)
+                                     .toList(this.service.fetch(query))
+                                     .result();
     }
 }

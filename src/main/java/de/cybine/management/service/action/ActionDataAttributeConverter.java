@@ -25,7 +25,7 @@ public class ActionDataAttributeConverter implements AttributeConverter<ActionDa
 
             Map<String, Object> data = new HashMap<>();
             data.put("@type", type);
-            data.put("data", attribute.data());
+            data.put("value", attribute.value());
 
             return this.getObjectMapper().writeValueAsString(data);
         }
@@ -48,7 +48,7 @@ public class ActionDataAttributeConverter implements AttributeConverter<ActionDa
                                 .findType(jsonNode.findValue("@type").asText())
                                 .orElseThrow(( ) -> new ActionProcessingException("Unknown action data type"));
 
-            Object data = this.getObjectMapper().treeToValue(jsonNode.findValue("data"), type);
+            Object data = this.getObjectMapper().treeToValue(jsonNode.findValue("value"), type);
 
             return new ActionData<>(type, data);
         }

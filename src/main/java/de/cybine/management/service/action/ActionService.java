@@ -145,7 +145,7 @@ public class ActionService
                                                  .creatorId(creator)
                                                  .createdAt(nextState.getCreatedAt())
                                                  .dueAt(nextState.getDueAt().orElse(null))
-                                                 .data(nextState.getData().map(ActionData::data).orElse(null))
+                                                 .data(nextState.getData().orElse(null))
                                                  .build();
 
             session.persist(this.converterRegistry.getProcessor(ActionProcess.class, ActionProcessEntity.class)

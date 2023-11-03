@@ -3,6 +3,7 @@ package de.cybine.management.api.v1.action.process;
 import de.cybine.management.data.action.process.*;
 import de.cybine.management.util.api.query.*;
 import de.cybine.management.util.api.response.*;
+import de.cybine.management.util.cloudevent.*;
 import jakarta.validation.*;
 import jakarta.validation.constraints.*;
 import jakarta.ws.rs.Path;
@@ -30,6 +31,15 @@ public interface ProcessApi
     @GET
     @Path("/find/correlation-id/{correlation-id}")
     RestResponse<ApiResponse<List<ActionProcess>>> fetchByCorrelationId(
+            @PathParam("correlation-id") UUID correlationId);
+
+    @GET
+    @Path("/cloud-event/event-id/{event-id}")
+    RestResponse<ApiResponse<CloudEvent>> fetchCloudEventByEventId(@PathParam("event-id") UUID eventId);
+
+    @GET
+    @Path("/cloud-event/correlation-id/{correlation-id}")
+    RestResponse<ApiResponse<List<CloudEvent>>> fetchCloudEventsByCorrelationId(
             @PathParam("correlation-id") UUID correlationId);
 
     @POST

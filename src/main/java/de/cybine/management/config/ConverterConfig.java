@@ -11,6 +11,7 @@ import de.cybine.management.data.mail.mailbox.*;
 import de.cybine.management.data.mail.tls.*;
 import de.cybine.management.data.mail.user.*;
 import de.cybine.management.util.api.converter.*;
+import de.cybine.management.util.cloudevent.*;
 import de.cybine.management.util.converter.*;
 import io.quarkus.runtime.*;
 import jakarta.annotation.*;
@@ -44,6 +45,7 @@ public class ConverterConfig
         this.registry.addEntityMapper(new ActionContextMapper());
         this.registry.addEntityMapper(new ActionMetadataMapper());
         this.registry.addEntityMapper(new ActionProcessMapper());
+        this.registry.addConverter(new CloudEventConverter());
 
         this.registry.addEntityMapper(new MailAddressMapper());
         this.registry.addEntityMapper(new MailDomainMapper());
