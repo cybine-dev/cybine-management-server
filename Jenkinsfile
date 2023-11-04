@@ -8,7 +8,7 @@ pipeline {
     parameters {
         string(name: 'VERSION', defaultValue: '', description: 'application version to build')
         choice(name: 'VERSION_TYPE', choices: ['final', 'snapshot', 'dev'])
-        string(name: 'DOCKER_CREDENTAILS', defaultValue: 'cybine-nexus', description: 'credentials-name for nexus')
+        string(name: 'DOCKER_CREDENTIALS', defaultValue: 'cybine-nexus', description: 'credentials-name for nexus')
         string(name: 'DOCKER_REGISTRY', defaultValue: 'docker-registry.cybine.de:443', description: 'docker-registry url')
     }
 
