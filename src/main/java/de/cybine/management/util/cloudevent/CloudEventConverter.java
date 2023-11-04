@@ -1,5 +1,6 @@
 package de.cybine.management.util.cloudevent;
 
+import de.cybine.management.config.*;
 import de.cybine.management.data.action.context.*;
 import de.cybine.management.data.action.metadata.*;
 import de.cybine.management.data.action.process.*;
@@ -10,6 +11,8 @@ import lombok.*;
 @RequiredArgsConstructor
 public class CloudEventConverter implements Converter<ActionProcess, CloudEvent>
 {
+    private final ApplicationConfig config;
+
     @Override
     public Class<ActionProcess> getInputType( )
     {
@@ -33,7 +36,7 @@ public class CloudEventConverter implements Converter<ActionProcess, CloudEvent>
                                                  .type(String.format("%s:%s:%s:%s", metadata.getNamespace(),
                                                          metadata.getCategory(), metadata.getName(), input.getStatus()))
                                                  .subject(context.getItemId().orElse(null))
-                                                 .source("http://localhost")
+                                                 .source(this.config.appId())
                                                  .time(input.getCreatedAt())
                                                  .correlationId(context.getCorrelationId())
                                                  .priority(input.getPriority().orElse(null));

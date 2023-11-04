@@ -25,7 +25,8 @@ public class ConverterConfig
 {
     private final ConverterRegistry registry;
 
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper      objectMapper;
+    private final ApplicationConfig applicationConfig;
 
     @PostConstruct
     public void setup( )
@@ -45,7 +46,7 @@ public class ConverterConfig
         this.registry.addEntityMapper(new ActionContextMapper());
         this.registry.addEntityMapper(new ActionMetadataMapper());
         this.registry.addEntityMapper(new ActionProcessMapper());
-        this.registry.addConverter(new CloudEventConverter());
+        this.registry.addConverter(new CloudEventConverter(this.applicationConfig));
 
         this.registry.addEntityMapper(new MailAddressMapper());
         this.registry.addEntityMapper(new MailDomainMapper());

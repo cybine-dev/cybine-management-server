@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.type.*;
+import de.cybine.management.exception.converter.*;
 import de.cybine.management.service.action.*;
 import io.quarkus.arc.*;
 import lombok.*;
@@ -35,9 +36,9 @@ public class CloudEventData<T>
             ObjectMapper mapper = Arc.container().select(ObjectMapper.class).get();
             return new String(Base64.getEncoder().encode(mapper.writeValueAsBytes(this)), StandardCharsets.UTF_8);
         }
-        catch (JsonProcessingException e)
+        catch (JsonProcessingException exception)
         {
-            throw new RuntimeException(e);
+            throw new EntityConversionException("Could not serialize to base64", exception);
         }
     }
 
@@ -61,9 +62,9 @@ public class CloudEventData<T>
             ObjectMapper mapper = Arc.container().select(ObjectMapper.class).get();
             return mapper.readValue(Base64.getDecoder().decode(data), CloudEventData.class);
         }
-        catch (IOException e)
+        catch (IOException exception)
         {
-            throw new RuntimeException(e);
+            throw new EntityConversionException("Could not deserialize base64", exception);
         }
     }
 }
