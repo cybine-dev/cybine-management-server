@@ -24,7 +24,7 @@ dependencies {
     implementation("io.quarkus:quarkus-hibernate-validator")
     implementation("io.quarkus:quarkus-jdbc-mariadb")
     implementation("io.quarkus:quarkus-jdbc-postgresql")
-    implementation("io.quarkus:quarkus-kafka-streams")
+//    implementation("io.quarkus:quarkus-kafka-streams")
     implementation("io.quarkus:quarkus-liquibase")
     implementation("io.quarkus:quarkus-mailer")
     implementation("io.quarkus:quarkus-mutiny")
@@ -37,9 +37,10 @@ dependencies {
     implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
     implementation("io.quarkus:quarkus-smallrye-fault-tolerance")
     implementation("io.quarkus:quarkus-smallrye-health")
+    implementation("io.quarkus:quarkus-smallrye-jwt")
     implementation("io.quarkus:quarkus-smallrye-openapi")
 
-    implementation("io.quarkiverse.amazonservices:quarkus-amazon-s3")
+//    implementation("io.quarkiverse.amazonservices:quarkus-amazon-s3")
 
     implementation("com.fasterxml.uuid:java-uuid-generator:4.1.0")
     implementation("org.mindrot:jbcrypt:0.4")
