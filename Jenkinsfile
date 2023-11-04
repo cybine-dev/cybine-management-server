@@ -25,6 +25,17 @@ pipeline {
             }
         }
 
+        stage('Check OWASP') {
+            steps {
+                dependencyCheck additionalArguments: '''
+                    -f 'ALL' 
+                    --kevURL 'https://www.cybine.de/security/known_exploited_vulnerabilities.json'
+                    --prettyPrint''', odcInstallation: 'Default'
+
+                dependencyCheckPublisher pattern: 'dependency-check-report.xml'
+            }
+        }
+
         stage('Build') {
             steps {
                 script {
