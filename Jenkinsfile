@@ -6,15 +6,12 @@ pipeline {
     }
 
     parameters {
-        string(name: 'VERSION', defaultValue: '', description: 'application version to build')
-        choice(name: 'VERSION_TYPE', choices: ['final', 'snapshot', 'dev'])
         string(name: 'DOCKER_CREDENTIALS', defaultValue: 'cybine-nexus', description: 'credentials-name for nexus')
         string(name: 'DOCKER_REGISTRY', defaultValue: 'docker-registry.cybine.de:443', description: 'docker-registry url')
     }
 
     environment {
         IMAGE_NAME = "cybine-management-server"
-        NEW_VERSION = "v${params.VERSION}-${params.VERSION_TYPE}"
         DOCKERFILE_LOCATION = '-f ./src/main/docker/Dockerfile.jvm .'
     }
 
@@ -35,7 +32,6 @@ pipeline {
                 dependencyCheckPublisher pattern: 'dependency-check-report.xml'
             }
         }
-
         stage('Build') {
             steps {
                 script {
@@ -47,7 +43,7 @@ pipeline {
         stage('Dockerize') {
             steps {
                 script {
-                    docker.build("${params.DOCKER_REGISTRY}/${env.IMAGE_NAME}:${env.NEW_VERSION}", env.DOCKERFILE_LOCATION)
+                    docker.build("${params.DOCKER_REGISTRY}/${env.IMAGE_NAME}:build-${env.BUILD_NUMBER}", env.DOCKERFILE_LOCATION)
                 }
             }
         }
@@ -55,10 +51,51 @@ pipeline {
         stage('Deploy to Nexus') {
             steps {
                 script {
+
                     withCredentials([usernamePassword(credentialsId: params.DOCKER_CREDENTIALS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${env.DOCKER_REGISTRY}"
-                        sh "docker push ${params.DOCKER_REGISTRY}/${env.IMAGE_NAME}:${env.NEW_VERSION}"
                     }
+
+                    def fileNames = ['build.gradle', 'build.gradle.kts']
+                    def extractFileContents = fileNames.collect { "[ -e \"$it\" ] && cat \"$it\"" }.join(' || ')
+                    def searchVersionLine = "grep -o 'version = [^,]*'"
+                    def extractVersion = "sed -E 's/version[[:blank:]]*=[[:blank:]]*[\"'\\'']//;s/[\"'\\'']\$//;s/-snapshot//I'"
+
+                    def version = sh(returnStdout: true, script: "$extractFileContents | $searchVersionLine | $extractVersion").trim()
+                    def tags
+                    switch (env.BRANCH_NAME.toLowerCase()) {
+                        case 'master':
+                        case 'main':
+                            tags = ['latest', version]
+                            break
+
+                        case 'dev':
+                        case 'development':
+                            tags = ['beta', "beta-$version"]
+                            break
+
+                        default:
+                            tags = ["dev-$version"]
+                            break
+                    }
+
+
+                    def imageName = "${params.DOCKER_REGISTRY}/${env.IMAGE_NAME}"
+                    def image = docker.image("$imageName:build-${env.BUILD_NUMBER}")
+                    for (def tag : tags) {
+                        image.tag(tag)
+
+                        def taggedImage = docker.image("$imageName:$tag")
+                        taggedImage.push()
+                    }
+                }
+            }
+        }
+
+        stage('Cleanup docker images') {
+            steps {
+                script {
+                    sh "docker image prune -a -f --filter \"until=1h\""
                 }
             }
         }
