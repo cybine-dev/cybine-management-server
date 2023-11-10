@@ -105,7 +105,7 @@ pipeline {
                 script {
 
                     withCredentials([usernamePassword(credentialsId: params.DOCKER_CREDENTIALS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${env.DOCKER_REGISTRY}"
+                        sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ${env.DOCKER_REGISTRY}'
                     }
 
                     def fileNames = ['build.gradle', 'build.gradle.kts']
