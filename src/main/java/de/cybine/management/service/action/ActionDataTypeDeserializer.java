@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.*;
 import io.quarkus.arc.*;
+import lombok.extern.slf4j.*;
 
+@Slf4j
 public class ActionDataTypeDeserializer implements Converter<String, JavaType>
 {
     @Override
@@ -23,7 +25,14 @@ public class ActionDataTypeDeserializer implements Converter<String, JavaType>
     public JavaType convert(String value)
     {
         ActionDataTypeRegistry registry = Arc.container().select(ActionDataTypeRegistry.class).get();
-        return registry.findType(value).orElseThrow();
+        JavaType type = registry.findType(value).orElse(null);
+        if (type == null)
+        {
+            log.warn("Unknown action data-type '{}' found: Using default map-type", value);
+            type = registry.getDefaultType();
+        }
+
+        return type;
     }
 }
 
