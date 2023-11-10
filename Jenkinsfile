@@ -85,7 +85,7 @@ pipeline {
             steps {
                 script {
                     sh "trivy image --ignore-unfixed --format template --template '@/opt/templates/trivy.html.tpl' -o trivy-fixed.html ${params.DOCKER_REGISTRY}/${env.IMAGE_NAME}:build-${env.BUILD_NUMBER}"
-                    sh "trivy image --format template --template '@/opt/templates/trivy.html.tpl' -o trivy-unfixed.html ${params.DOCKER_REGISTRY}/${env.IMAGE_NAME}:build-${env.BUILD_NUMBER}"
+                    sh "trivy image --format template --template '@/opt/templates/trivy.html.tpl' -o trivy-all.html ${params.DOCKER_REGISTRY}/${env.IMAGE_NAME}:build-${env.BUILD_NUMBER}"
                 }
 
                 publishHTML target : [
@@ -93,9 +93,9 @@ pipeline {
                         alwaysLinkToLastBuild: true,
                         keepAll: true,
                         reportDir: '',
-                        reportFiles: 'trivy-fixed.html,trivy-unfixed.html',
+                        reportFiles: 'trivy-fixed.html,trivy-all.html',
                         reportName: 'Trivy Scan',
-                        reportTitles: 'Trivy fixed,Trivy unfixed'
+                        reportTitles: 'Trivy fixed,Trivy all'
                 ]
             }
         }
