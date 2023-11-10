@@ -7,7 +7,7 @@ pipeline {
 
     parameters {
         string(name: 'DOCKER_CREDENTIALS', defaultValue: 'cybine-nexus', description: 'credentials-name for nexus')
-        string(name: 'DOCKER_REGISTRY', defaultValue: 'docker-registry.cybine.de:443', description: 'docker-registry url')
+        string(name: 'DOCKER_REGISTRY', defaultValue: 'docker-registry.cybine.de', description: 'docker-registry url')
     }
 
     environment {
