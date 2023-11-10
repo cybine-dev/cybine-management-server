@@ -7,12 +7,13 @@ pipeline {
 
     parameters {
         string(name: 'DOCKER_CREDENTIALS', defaultValue: 'cybine-nexus', description: 'credentials-name for nexus')
-        string(name: 'DOCKER_REGISTRY', defaultValue: 'docker-registry.cybine.de', description: 'docker-registry url')
+        string(name: 'DOCKER_REGISTRY', defaultValue: 'docker-registry.cybine.de:443', description: 'docker-registry url')
     }
 
     environment {
         IMAGE_NAME = "cybine-management-server"
-        DOCKERFILE_LOCATION = '-f ./src/main/docker/Dockerfile.jvm .'
+        DOCKERFILE_NAME = 'Dockerfile.jvm'
+        DOCKERFILE_LOCATION = './src/main/docker/'
     }
 
     stages {
@@ -22,16 +23,48 @@ pipeline {
             }
         }
 
-        stage('Check OWASP') {
+        stage('PreBuild') {
             steps {
+                script {
+                    echo 'Working directory'
+                    sh 'pwd'
+
+                    echo 'Docker version'
+                    sh 'docker --version'
+
+                    echo 'Hadolint version'
+                    sh 'hadolint --version'
+
+                    echo 'Trivy version'
+                    sh 'trivy --version'
+
+                    echo 'Performing security checks...'
+                    echo 'Checking dependencies...'
+                }
+
                 dependencyCheck additionalArguments: '''
                     -f 'ALL' 
                     --kevURL 'https://www.cybine.de/security/known_exploited_vulnerabilities.json'
                     --prettyPrint''', odcInstallation: 'Default'
 
                 dependencyCheckPublisher pattern: 'dependency-check-report.xml'
+
+                script {
+
+                    echo 'Checking dockerfile...'
+                    sh "hadolint ${env.DOCKERFILE_LOCATION}${env.DOCKERFILE_NAME} | tee -a hadolint.report.txt"
+
+                    echo 'Finished security tests'
+                }
+            }
+
+            post {
+                always {
+                    archiveArtifacts 'hadolint.report.txt'
+                }
             }
         }
+
         stage('Build') {
             steps {
                 script {
@@ -43,12 +76,31 @@ pipeline {
         stage('Dockerize') {
             steps {
                 script {
-                    docker.build("${params.DOCKER_REGISTRY}/${env.IMAGE_NAME}:build-${env.BUILD_NUMBER}", env.DOCKERFILE_LOCATION)
+                    docker.build("${params.DOCKER_REGISTRY}/${env.IMAGE_NAME}:build-${env.BUILD_NUMBER}", "-f ${env.DOCKERFILE_LOCATION}${env.DOCKERFILE_NAME} .")
                 }
             }
         }
 
-        stage('Deploy to Nexus') {
+        stage('PostDockerize') {
+            steps {
+                script {
+                    sh "trivy image --ignore-unfixed --format template --template '@/opt/templates/trivy.html.tpl' -o trivy-fixed.html ${params.DOCKER_REGISTRY}/${env.IMAGE_NAME}:build-${env.BUILD_NUMBER}"
+                    sh "trivy image --format template --template '@/opt/templates/trivy.html.tpl' -o trivy-unfixed.html ${params.DOCKER_REGISTRY}/${env.IMAGE_NAME}:build-${env.BUILD_NUMBER}"
+                }
+
+                publishHTML target : [
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: '',
+                        reportFiles: 'trivy-fixed.html,trivy-unfixed.html',
+                        reportName: 'Trivy Scan',
+                        reportTitles: 'Trivy fixed,Trivy unfixed'
+                ]
+            }
+        }
+
+        stage('Deploy') {
             steps {
                 script {
 
@@ -79,7 +131,6 @@ pipeline {
                             break
                     }
 
-
                     def imageName = "${params.DOCKER_REGISTRY}/${env.IMAGE_NAME}"
                     def image = docker.image("$imageName:build-${env.BUILD_NUMBER}")
                     for (def tag : tags) {
@@ -92,7 +143,7 @@ pipeline {
             }
         }
 
-        stage('Cleanup docker images') {
+        stage('Cleanup') {
             steps {
                 script {
                     sh "docker image prune -a -f --filter \"until=1h\""
