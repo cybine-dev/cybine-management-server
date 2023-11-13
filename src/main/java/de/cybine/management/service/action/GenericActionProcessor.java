@@ -1,6 +1,5 @@
 package de.cybine.management.service.action;
 
-import de.cybine.management.data.action.process.*;
 import lombok.*;
 
 import java.util.function.*;
@@ -16,22 +15,22 @@ public class GenericActionProcessor<T> implements ActionProcessor<T>
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private final BiPredicate<ActionService, ActionProcessMetadata> precondition;
+    private final Predicate<ActionStateTransition> precondition;
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private final BiFunction<ActionService, ActionProcess, ActionProcessorResult<T>> action;
+    private final Function<ActionStateTransition, ActionProcessorResult<T>> action;
 
     @Override
-    public boolean shouldExecute(ActionService service, ActionProcessMetadata nextState)
+    public boolean shouldExecute(ActionStateTransition transition)
     {
-        return this.precondition.test(service, nextState);
+        return this.precondition.test(transition);
     }
 
     @Override
-    public ActionProcessorResult<T> process(ActionService service, ActionProcess previousState)
+    public ActionProcessorResult<T> process(ActionStateTransition transition)
     {
-        return this.action.apply(service, previousState);
+        return this.action.apply(transition);
     }
 
     public static GenericActionProcessor<Void> of(ActionProcessorMetadata metadata)
@@ -40,31 +39,31 @@ public class GenericActionProcessor<T> implements ActionProcessor<T>
     }
 
     public static <T> GenericActionProcessor<T> of(ActionProcessorMetadata metadata,
-            BiFunction<ActionService, ActionProcess, ActionProcessorResult<T>> action)
+            Function<ActionStateTransition, ActionProcessorResult<T>> action)
     {
         return new GenericActionProcessor<>(metadata, DEFAULT_PRECONDITION, action);
     }
 
     public static <T> GenericActionProcessor<T> of(ActionProcessorMetadata metadata,
-            BiFunction<ActionService, ActionProcess, ActionProcessorResult<T>> action,
-            BiPredicate<ActionService, ActionProcessMetadata> precondition)
+            Function<ActionStateTransition, ActionProcessorResult<T>> action,
+            Predicate<ActionStateTransition> precondition)
     {
         return new GenericActionProcessor<>(metadata, precondition, action);
     }
 
-    private static class DefaultPrecondition implements BiPredicate<ActionService, ActionProcessMetadata>
+    private static class DefaultPrecondition implements Predicate<ActionStateTransition>
     {
         @Override
-        public boolean test(ActionService service, ActionProcessMetadata previousState)
+        public boolean test(ActionStateTransition transition)
         {
             return true;
         }
     }
 
-    private static class DefaultAction implements BiFunction<ActionService, ActionProcess, ActionProcessorResult<Void>>
+    private static class DefaultAction implements Function<ActionStateTransition, ActionProcessorResult<Void>>
     {
         @Override
-        public ActionProcessorResult<Void> apply(ActionService service, ActionProcess previousState)
+        public ActionProcessorResult<Void> apply(ActionStateTransition transition)
         {
             return ActionProcessorResult.empty();
         }

@@ -130,7 +130,13 @@ public class ActionService
             if (processor == null)
                 throw new UnknownActionException("Unknown action " + processorMetadata.asString());
 
-            if (!processor.shouldExecute(this, nextState))
+            ActionStateTransition transition = ActionStateTransition.builder()
+                                                                    .service(this)
+                                                                    .previousState(state)
+                                                                    .nextState(nextState)
+                                                                    .build();
+
+            if (!processor.shouldExecute(transition))
                 throw new ActionPreconditionException(null);
 
             ActionContextId contextId = ActionContextId.of(nextState.getContextId().getValue());
@@ -152,7 +158,7 @@ public class ActionService
                                                   .toItem(process)
                                                   .result());
 
-            T result = (T) processor.process(this, state);
+            T result = (T) processor.process(transition);
 
             transaction.commit();
 
