@@ -67,11 +67,14 @@ public class HandleResource implements HandleApi
             if(!data.containsKey("@type"))
                 throw new IllegalArgumentException("@type must be defined when data-object is used");
 
+            if (!data.containsKey("value"))
+                throw new IllegalArgumentException("value must be defined when data-object is used");
+
             try
             {
                 JavaType dataType = this.typeRegistry.findType((String) data.get("@type")).orElseThrow();
 
-                String serializedData = this.objectMapper.writeValueAsString(data);
+                String serializedData = this.objectMapper.writeValueAsString(data.get("value"));
                 actionData = ActionData.of(this.objectMapper.readValue(serializedData, dataType));
             }
             catch (JsonProcessingException exception)

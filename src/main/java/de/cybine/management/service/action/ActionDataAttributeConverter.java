@@ -13,6 +13,9 @@ import java.util.*;
 @Converter
 public class ActionDataAttributeConverter implements AttributeConverter<ActionData<?>, String>
 {
+    private final ActionDataTypeSerializer   typeSerializer   = new ActionDataTypeSerializer();
+    private final ActionDataTypeDeserializer typeDeserializer = new ActionDataTypeDeserializer();
+
     @Override
     public String convertToDatabaseColumn(ActionData<?> attribute)
     {
@@ -21,18 +24,8 @@ public class ActionDataAttributeConverter implements AttributeConverter<ActionDa
 
         try
         {
-            ActionDataTypeRegistry registry = this.getRegistry();
-            String type = registry.findTypeName(attribute.type()).orElse(null);
-            if (type == null)
-            {
-                log.warn("Unknown action data-type '{}' found: Using type-name '{}'", attribute.type().getTypeName(),
-                        registry.getDefaultTypeName());
-
-                type = registry.getDefaultTypeName();
-            }
-
             Map<String, Object> data = new HashMap<>();
-            data.put("@type", type);
+            data.put("@type", this.typeSerializer.convert(attribute.type()));
             data.put("value", attribute.value());
 
             return this.getObjectMapper().writeValueAsString(data);
@@ -53,13 +46,8 @@ public class ActionDataAttributeConverter implements AttributeConverter<ActionDa
         {
             JsonNode jsonNode = this.getObjectMapper().readTree(dbData);
             String typeName = jsonNode.findValue("@type").asText();
-            JavaType type = this.getRegistry().findType(typeName).orElse(null);
-            if (type == null)
-            {
-                log.warn("Unknown action data-type '{}' found: Using default map-type", typeName);
-                type = this.getRegistry().getDefaultType();
-            }
 
+            JavaType type = this.typeDeserializer.convert(typeName);
             Object data = this.getObjectMapper().treeToValue(jsonNode.findValue("value"), type);
 
             return new ActionData<>(type, data);
@@ -73,10 +61,5 @@ public class ActionDataAttributeConverter implements AttributeConverter<ActionDa
     private ObjectMapper getObjectMapper( )
     {
         return Arc.container().select(ObjectMapper.class).get();
-    }
-
-    private ActionDataTypeRegistry getRegistry( )
-    {
-        return Arc.container().select(ActionDataTypeRegistry.class).get();
     }
 }
