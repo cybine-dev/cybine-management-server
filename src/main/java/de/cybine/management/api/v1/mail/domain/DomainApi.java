@@ -4,6 +4,7 @@ import de.cybine.management.api.v1.mail.domain.params.*;
 import de.cybine.management.data.mail.domain.*;
 import de.cybine.management.util.api.query.*;
 import de.cybine.management.util.api.response.*;
+import io.quarkus.security.*;
 import jakarta.validation.*;
 import jakarta.validation.constraints.*;
 import jakarta.ws.rs.Path;
@@ -18,6 +19,7 @@ import java.util.*;
 @Tag(name = "MailDomain Resource")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Authenticated
 public interface DomainApi
 {
     @POST

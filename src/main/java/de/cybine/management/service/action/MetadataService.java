@@ -1,5 +1,6 @@
 package de.cybine.management.service.action;
 
+import de.cybine.management.data.action.context.*;
 import de.cybine.management.data.action.metadata.*;
 import de.cybine.management.util.api.*;
 import de.cybine.management.util.api.query.*;
@@ -42,6 +43,20 @@ public class MetadataService
         DatasourceConditionInfo condition = DatasourceHelper.and(idEquals);
 
         return this.service.fetchSingle(DatasourceQuery.builder().condition(condition).build());
+    }
+
+    public Optional<ActionMetadata> fetchByCorrelationId(UUID correlationId)
+    {
+        DatasourceConditionDetail<String> correlationIdEquals = DatasourceHelper.isEqual(
+                ActionContextEntity_.CORRELATION_ID, correlationId.toString());
+
+        DatasourceConditionInfo condition = DatasourceHelper.and(correlationIdEquals);
+        DatasourceRelationInfo contextRelation = DatasourceRelationInfo.builder()
+                                                                       .property(CONTEXTS.getName())
+                                                                       .condition(condition)
+                                                                       .build();
+
+        return this.service.fetchSingle(DatasourceQuery.builder().relation(contextRelation).build());
     }
 
     public List<ActionMetadata> fetch(ApiQuery query)

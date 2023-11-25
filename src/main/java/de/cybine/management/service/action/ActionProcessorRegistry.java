@@ -43,4 +43,16 @@ public class ActionProcessorRegistry
 
         return Optional.ofNullable((ActionProcessor<T>) this.processors.get(metadata));
     }
+
+    public List<String> getPossibleActions(String namespace, String category, String name, String status)
+    {
+        return this.processors.keySet()
+                              .stream()
+                              .filter(metadata -> metadata.getNamespace().equals(namespace))
+                              .filter(metadata -> metadata.getCategory().equals(category))
+                              .filter(metadata -> metadata.getName().equals(name))
+                              .filter(metadata -> metadata.getFromStatus().equals(status))
+                              .map(ActionProcessorMetadata::getToStatus)
+                              .toList();
+    }
 }

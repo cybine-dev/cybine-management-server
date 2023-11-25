@@ -49,4 +49,12 @@ public interface HandleApi
     RestResponse<ApiResponse<ActionProcess>> process(@QueryParam("correlation-id") @NotNull UUID correlationId,
             @QueryParam("event-id") UUID eventId, @QueryParam("action") @NotNull String action,
             Map<String, Object> data);
+
+    @GET
+    @Path("/available-actions/{correlation-id}")
+    @Parameter(name = "correlation-id",
+               required = true,
+               description = "Correlation-ID of the action-context to process")
+    RestResponse<ApiResponse<List<String>>> fetchAvailableActions(
+            @PathParam("correlation-id") @NotNull UUID correlationId);
 }

@@ -63,9 +63,9 @@ public class HandleResource implements HandleApi
             return ApiResponse.<ActionProcess>builder().status(RestResponse.Status.CONFLICT).build().toResponse();
 
         ActionData<?> actionData = null;
-        if(data != null)
+        if (data != null)
         {
-            if(!data.containsKey("@type"))
+            if (!data.containsKey("@type"))
                 throw new IllegalArgumentException("@type must be defined when data-object is used");
 
             if (!data.containsKey("value"))
@@ -93,6 +93,15 @@ public class HandleResource implements HandleApi
 
         return ApiResponse.<ActionProcess>builder()
                           .value(this.actionService.fetchCurrentState(context.getId()).orElseThrow())
+                          .build()
+                          .toResponse();
+    }
+
+    @Override
+    public RestResponse<ApiResponse<List<String>>> fetchAvailableActions(UUID correlationId)
+    {
+        return ApiResponse.<List<String>>builder()
+                          .value(this.actionService.fetchAvailableActions(correlationId))
                           .build()
                           .toResponse();
     }

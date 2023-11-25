@@ -264,4 +264,40 @@ public class ActionService
                           .map(processor::toItem)
                           .map(ConversionResult::result);
     }
+
+    public Optional<ActionProcess> fetchCurrentState(UUID correlationId)
+    {
+        DatasourceConditionDetail<String> correlationIdEquals = DatasourceHelper.isEqual(
+                ActionContextEntity_.CORRELATION_ID, correlationId.toString());
+
+        DatasourceConditionInfo condition = DatasourceHelper.and(correlationIdEquals);
+        DatasourceRelationInfo contextRelation = DatasourceRelationInfo.builder()
+                                                                       .property(ActionProcessEntity_.CONTEXT.getName())
+                                                                       .condition(condition)
+                                                                       .build();
+
+        DatasourceQueryInterpreter<ActionProcessEntity> interpreter = DatasourceQueryInterpreter.of(
+                ActionProcessEntity.class, DatasourceQuery.builder()
+                                                          .relation(contextRelation)
+                                                          .order(DatasourceHelper.desc(ActionProcessEntity_.ID))
+                                                          .build());
+
+        ConversionProcessor<ActionProcessEntity, ActionProcess> processor = this.converterRegistry.getProcessor(
+                ActionProcessEntity.class, ActionProcess.class);
+
+        return interpreter.prepareDataQuery()
+                          .getResultStream()
+                          .findAny()
+                          .map(processor::toItem)
+                          .map(ConversionResult::result);
+    }
+
+    public List<String> fetchAvailableActions(UUID correlationId)
+    {
+        ActionProcess process = this.fetchCurrentState(correlationId).orElseThrow();
+        ActionMetadata metadata = this.metadataService.fetchByCorrelationId(correlationId).orElseThrow();
+
+        return this.processorRegistry.getPossibleActions(metadata.getNamespace(), metadata.getCategory(),
+                metadata.getName(), process.getStatus());
+    }
 }
