@@ -41,9 +41,7 @@ public class CloudEventConverter implements Converter<ActionProcess, CloudEvent>
                                                  .correlationId(context.getCorrelationId())
                                                  .priority(input.getPriority().orElse(null));
 
-        input.getData()
-             .ifPresent(data -> builder.contentType(MediaType.APPLICATION_JSON)
-                                       .data(new CloudEventData<>(data.type(), data.value())));
+        input.getData().ifPresent(data -> builder.contentType(MediaType.APPLICATION_JSON).data(data));
 
         return builder.build();
     }

@@ -2,6 +2,7 @@ package de.cybine.management.service.mail.domain;
 
 import de.cybine.management.data.mail.domain.*;
 import de.cybine.management.service.action.*;
+import de.cybine.management.service.action.data.*;
 import de.cybine.management.service.mail.*;
 import de.cybine.management.util.converter.*;
 import io.quarkus.arc.*;

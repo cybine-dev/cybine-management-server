@@ -2,6 +2,7 @@ package de.cybine.management.util.cloudevent;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.*;
+import de.cybine.management.service.action.data.*;
 import jakarta.validation.*;
 import lombok.*;
 import lombok.extern.jackson.*;
@@ -46,9 +47,9 @@ public class CloudEvent
 
     @Valid
     @JsonProperty(value = "data")
-    @JsonSerialize(converter = CloudEventDataSerializer.class)
-    @JsonDeserialize(converter = CloudEventDataDeserializer.class)
-    private final CloudEventData<?> data;
+    @JsonSerialize(converter = ActionDataSerializer.class)
+    @JsonDeserialize(converter = ActionDataDeserializer.class)
+    private final ActionData<?> data;
 
     public Optional<String> getSubject( )
     {
@@ -72,8 +73,8 @@ public class CloudEvent
 
     @JsonIgnore
     @SuppressWarnings("unchecked")
-    public <T> Optional<CloudEventData<T>> getData( )
+    public <T> Optional<ActionData<T>> getData( )
     {
-        return Optional.ofNullable((CloudEventData<T>) this.data);
+        return Optional.ofNullable((ActionData<T>) this.data);
     }
 }

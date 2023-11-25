@@ -1,6 +1,7 @@
 package de.cybine.management.util.api;
 
 import de.cybine.management.util.*;
+import de.cybine.management.util.api.permission.*;
 import de.cybine.management.util.datasource.*;
 import lombok.*;
 import lombok.extern.slf4j.*;
@@ -20,6 +21,12 @@ public class ApiFieldResolverContext
 
     @Getter(AccessLevel.NONE)
     private final Function<BiTuple<Type, String>, DatasourceField> fieldSupplier;
+
+    private final List<String>        availableActions;
+    private final List<ApiCapability> capabilities;
+    private final List<ApiTypeConfig> types;
+
+    private final Map<String, Type> typeMappings;
 
     public Optional<DatasourceFieldPath> findField(Type responseType, String fieldName)
     {

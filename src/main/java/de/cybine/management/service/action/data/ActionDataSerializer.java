@@ -1,15 +1,15 @@
-package de.cybine.management.util.cloudevent;
+package de.cybine.management.service.action.data;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.*;
 
-public class CloudEventDataSerializer implements Converter<CloudEventData<?>, String>
+public class ActionDataSerializer implements Converter<ActionData<?>, String>
 {
     @Override
     public JavaType getInputType(TypeFactory typeFactory)
     {
-        return typeFactory.constructParametricType(CloudEventData.class, Object.class);
+        return typeFactory.constructParametricType(ActionData.class, Object.class);
     }
 
     @Override
@@ -19,7 +19,7 @@ public class CloudEventDataSerializer implements Converter<CloudEventData<?>, St
     }
 
     @Override
-    public String convert(CloudEventData<?> value)
+    public String convert(ActionData<?> value)
     {
         return value.toBase64();
     }

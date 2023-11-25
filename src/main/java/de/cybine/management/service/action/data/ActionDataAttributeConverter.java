@@ -1,4 +1,4 @@
-package de.cybine.management.service.action;
+package de.cybine.management.service.action.data;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
@@ -13,9 +13,6 @@ import java.util.*;
 @Converter
 public class ActionDataAttributeConverter implements AttributeConverter<ActionData<?>, String>
 {
-    private final ActionDataTypeSerializer   typeSerializer   = new ActionDataTypeSerializer();
-    private final ActionDataTypeDeserializer typeDeserializer = new ActionDataTypeDeserializer();
-
     @Override
     public String convertToDatabaseColumn(ActionData<?> attribute)
     {
@@ -25,7 +22,7 @@ public class ActionDataAttributeConverter implements AttributeConverter<ActionDa
         try
         {
             Map<String, Object> data = new HashMap<>();
-            data.put("@type", this.typeSerializer.convert(attribute.type()));
+            data.put("@type", attribute.typeName());
             data.put("value", attribute.value());
 
             return this.getObjectMapper().writeValueAsString(data);
@@ -47,10 +44,14 @@ public class ActionDataAttributeConverter implements AttributeConverter<ActionDa
             JsonNode jsonNode = this.getObjectMapper().readTree(dbData);
             String typeName = jsonNode.findValue("@type").asText();
 
-            JavaType type = this.typeDeserializer.convert(typeName);
+            ActionDataTypeRegistry registry = Arc.container().select(ActionDataTypeRegistry.class).get();
+            JavaType type = registry.findType(typeName).orElse(null);
+            if (type == null)
+                log.warn("Unknown action data-type '{}' found: Skipping type inference for now", typeName);
+
             Object data = this.getObjectMapper().treeToValue(jsonNode.findValue("value"), type);
 
-            return new ActionData<>(type, data);
+            return new ActionData<>(typeName, data);
         }
         catch (JsonProcessingException exception)
         {

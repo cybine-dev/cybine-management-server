@@ -3,7 +3,7 @@ package de.cybine.management.config;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.*;
 import de.cybine.management.data.mail.domain.*;
-import de.cybine.management.service.action.*;
+import de.cybine.management.service.action.data.*;
 import io.quarkus.runtime.*;
 import jakarta.annotation.*;
 import jakarta.enterprise.context.*;

@@ -63,7 +63,9 @@ public class ApiFieldResolver
 
     public ApiFieldResolverContext getContext(String name)
     {
-        return this.contexts.computeIfAbsent(name, context -> new ApiFieldResolverContext(context, this.fields::get));
+        return this.contexts.computeIfAbsent(name,
+                context -> new ApiFieldResolverContext(context, this.fields::get, new ArrayList<>(), new ArrayList<>(),
+                        new ArrayList<>(), new HashMap<>()));
     }
 
     public Optional<ApiFieldResolverContext> findContext(String context)

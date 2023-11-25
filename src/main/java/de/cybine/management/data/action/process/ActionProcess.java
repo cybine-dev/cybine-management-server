@@ -3,7 +3,7 @@ package de.cybine.management.data.action.process;
 import com.fasterxml.jackson.annotation.*;
 import de.cybine.management.data.action.context.*;
 import de.cybine.management.data.util.*;
-import de.cybine.management.service.action.*;
+import de.cybine.management.service.action.data.*;
 import de.cybine.management.util.*;
 import lombok.*;
 import lombok.extern.jackson.*;

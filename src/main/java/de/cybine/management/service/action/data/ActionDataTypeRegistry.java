@@ -1,4 +1,4 @@
-package de.cybine.management.service.action;
+package de.cybine.management.service.action.data;
 
 import com.fasterxml.jackson.databind.*;
 import jakarta.annotation.*;
