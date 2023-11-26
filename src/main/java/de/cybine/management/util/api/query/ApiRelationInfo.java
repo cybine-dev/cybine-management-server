@@ -2,7 +2,7 @@ package de.cybine.management.util.api.query;
 
 import com.fasterxml.jackson.annotation.*;
 import jakarta.validation.*;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.extern.jackson.*;
 
@@ -30,6 +30,11 @@ public class ApiRelationInfo
     @Singular("order")
     @JsonProperty("order")
     private final List<ApiOrderInfo> order;
+
+    @Valid
+    @Singular
+    @JsonProperty("relations")
+    private final List<ApiRelationInfo> relations;
 
     public Optional<ApiConditionInfo> getCondition( )
     {

@@ -13,7 +13,17 @@ public interface ApplicationConfig
     @WithName("base-url")
     String baseUrl( );
 
-    @NotNull @NotNull
+    @NotNull @NotBlank
     @WithName("app-id")
     String appId( );
+
+    @WithName("converter")
+    Converter converter( );
+
+    interface Converter
+    {
+        @WithDefault("false")
+        @WithName("allow-multi-level-relations")
+        boolean allowMultiLevelRelations( );
+    }
 }

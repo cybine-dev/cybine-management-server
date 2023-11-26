@@ -1,11 +1,11 @@
 package de.cybine.management.util.api.converter;
 
+import de.cybine.management.config.*;
 import de.cybine.management.exception.datasource.*;
 import de.cybine.management.util.api.query.*;
 import de.cybine.management.util.converter.*;
 import de.cybine.management.util.datasource.*;
-
-import java.util.*;
+import io.quarkus.arc.*;
 
 public class ApiRelationInfoConverter implements Converter<ApiRelationInfo, DatasourceRelationInfo>
 {
@@ -24,6 +24,9 @@ public class ApiRelationInfoConverter implements Converter<ApiRelationInfo, Data
     @Override
     public DatasourceRelationInfo convert(ApiRelationInfo input, ConversionHelper helper)
     {
+        if(input.getRelations() != null && !input.getRelations().isEmpty() && !this.allowMultiLevelRelations())
+            throw new UnknownRelationException("Cannot reference multiple relation levels");
+
         DatasourceFieldPath path = ApiQueryConverter.getFieldPathOrThrow(helper, input.getProperty());
         if (path.getLength() > 1)
             throw new UnknownRelationException(
@@ -39,8 +42,13 @@ public class ApiRelationInfoConverter implements Converter<ApiRelationInfo, Data
                                                       .map(input::getCondition))
                                      .order(helper.toList(ApiOrderInfo.class, DatasourceOrderInfo.class)
                                                   .apply(input::getOrder))
-                                     // Only allow one relation layer via the API
-                                     .relations(Collections.emptyList())
+                                     .relations(helper.toList(ApiRelationInfo.class, DatasourceRelationInfo.class)
+                                                      .apply(input::getRelations))
                                      .build();
+    }
+
+    private boolean allowMultiLevelRelations()
+    {
+        return Arc.container().select(ApplicationConfig.class).get().converter().allowMultiLevelRelations();
     }
 }
