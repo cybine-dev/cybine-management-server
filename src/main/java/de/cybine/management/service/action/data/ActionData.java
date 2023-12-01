@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.*;
+import de.cybine.management.exception.action.*;
 import de.cybine.management.exception.converter.*;
 import io.quarkus.arc.*;
 import lombok.*;
 import lombok.experimental.*;
 import lombok.extern.slf4j.*;
 
-import java.io.*;
 import java.nio.charset.*;
 import java.util.*;
 
@@ -39,7 +39,7 @@ public class ActionData<T>
     public JavaType type( )
     {
         JavaType javaType = this.findType().orElse(null);
-        if(javaType != null)
+        if (javaType != null)
             return javaType;
 
         log.warn("Unknown action data-type '{}' found: Using default map-type", this.typeName);
@@ -53,7 +53,7 @@ public class ActionData<T>
 
         ActionDataTypeRegistry registry = Arc.container().select(ActionDataTypeRegistry.class).get();
         JavaType javaType = registry.findType(this.typeName).orElse(null);
-        if(javaType != null)
+        if (javaType != null)
         {
             this.type = javaType;
             return Optional.of(javaType);
@@ -69,10 +69,16 @@ public class ActionData<T>
 
     public String toBase64( )
     {
+        return new String(Base64.getEncoder().encode(this.toJson().getBytes(StandardCharsets.UTF_8)),
+                StandardCharsets.UTF_8);
+    }
+
+    public String toJson( )
+    {
         try
         {
             ObjectMapper mapper = Arc.container().select(ObjectMapper.class).get();
-            return new String(Base64.getEncoder().encode(mapper.writeValueAsBytes(this)), StandardCharsets.UTF_8);
+            return mapper.writeValueAsString(this);
         }
         catch (JsonProcessingException exception)
         {
@@ -98,17 +104,35 @@ public class ActionData<T>
         return new ActionData<>(typeName, value);
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> ActionData<T> fromBase64(String data)
     {
+        return ActionData.fromJson(new String(Base64.getDecoder().decode(data), StandardCharsets.UTF_8));
+
+    }
+
+    public static <T> ActionData<T> fromJson(String json)
+    {
+        if (json == null)
+            return null;
+
         try
         {
             ObjectMapper mapper = Arc.container().select(ObjectMapper.class).get();
-            return mapper.readValue(Base64.getDecoder().decode(data), ActionData.class);
+            JsonNode jsonNode = mapper.readTree(json);
+            String typeName = jsonNode.findValue("@type").asText();
+
+            ActionDataTypeRegistry registry = Arc.container().select(ActionDataTypeRegistry.class).get();
+            JavaType type = registry.findType(typeName).orElse(null);
+            if (type == null)
+                log.warn("Unknown action data-type '{}' found: Skipping type inference for now", typeName);
+
+            T data = mapper.treeToValue(jsonNode.findValue("value"), type);
+
+            return new ActionData<>(typeName, data);
         }
-        catch (IOException exception)
+        catch (JsonProcessingException exception)
         {
-            throw new EntityConversionException("Could not deserialize base64", exception);
+            throw new ActionProcessingException(exception);
         }
     }
 }

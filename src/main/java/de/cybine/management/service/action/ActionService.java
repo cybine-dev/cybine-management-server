@@ -62,8 +62,7 @@ public class ActionService
             ActionProcess process = ActionProcess.builder()
                                                  .context(ActionContext.builder().id(contextId).build())
                                                  .status(BaseActionProcessStatus.INITIALIZED.getName())
-                                                 .creatorId(this.securityContext.getUserPrincipal() != null ?
-                                                         this.securityContext.getUserPrincipal().getName() : null)
+                                                 .creatorId(this.getIdentityName().orElse(null))
                                                  .createdAt(ZonedDateTime.now())
                                                  .build();
 
@@ -140,15 +139,12 @@ public class ActionService
                 throw new ActionPreconditionException(null);
 
             ActionContextId contextId = ActionContextId.of(nextState.getContextId().getValue());
-            String creator = this.securityContext.getUserPrincipal() != null ?
-                    this.securityContext.getUserPrincipal().getName() : null;
-
             ActionProcess process = ActionProcess.builder()
                                                  .context(ActionContext.builder().id(contextId).build())
                                                  .status(nextState.getStatus())
                                                  .priority(nextState.getPriority().orElse(100))
                                                  .description(nextState.getDescription().orElse(null))
-                                                 .creatorId(creator)
+                                                 .creatorId(this.getIdentityName().orElse(null))
                                                  .createdAt(nextState.getCreatedAt())
                                                  .dueAt(nextState.getDueAt().orElse(null))
                                                  .data(nextState.getData().orElse(null))
@@ -299,5 +295,20 @@ public class ActionService
 
         return this.processorRegistry.getPossibleActions(metadata.getNamespace(), metadata.getCategory(),
                 metadata.getName(), process.getStatus());
+    }
+
+    private Optional<String> getIdentityName()
+    {
+        try
+        {
+            if(this.securityContext.getUserPrincipal() == null)
+                return Optional.empty();
+
+            return Optional.ofNullable(this.securityContext.getUserPrincipal().getName());
+        }
+        catch (ContextNotActiveException | IllegalStateException exception)
+        {
+            return Optional.empty();
+        }
     }
 }
