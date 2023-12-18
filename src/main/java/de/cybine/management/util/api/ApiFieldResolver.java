@@ -1,6 +1,8 @@
 package de.cybine.management.util.api;
 
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import de.cybine.management.config.*;
 import de.cybine.management.util.*;
 import de.cybine.management.util.api.permission.*;
 import de.cybine.management.util.datasource.*;
@@ -11,6 +13,7 @@ import lombok.*;
 import lombok.extern.slf4j.*;
 
 import java.lang.reflect.*;
+import java.net.*;
 import java.util.*;
 
 @Slf4j
@@ -20,8 +23,9 @@ public class ApiFieldResolver
 {
     public static final String DEFAULT_CONTEXT = "default";
 
-    private final ObjectMapper     objectMapper;
-    private final SecurityIdentity securityIdentity;
+    private final ObjectMapper      objectMapper;
+    private final SecurityIdentity  securityIdentity;
+    private final ApplicationConfig applicationConfig;
 
     private final Map<String, ApiFieldResolverContext> contexts = new HashMap<>();
 
@@ -32,15 +36,18 @@ public class ApiFieldResolver
     private ApiPermissionConfig permissionConfig;
 
     @PostConstruct
-    @SneakyThrows
-    void setup( )
+    void setup( ) throws URISyntaxException, JsonProcessingException
     {
-        this.permissionConfig = this.objectMapper.readValue(
-                this.getClass().getClassLoader().getResource("api-permissions.json"), ApiPermissionConfig.class);
+        String permissionJson = FilePathHelper.resolvePath(this.applicationConfig.paths().apiPermissionsPath())
+                                              .flatMap(FilePathHelper::tryRead)
+                                              .orElse(null);
+
+        if (permissionJson != null)
+            this.permissionConfig = this.objectMapper.readValue(permissionJson, ApiPermissionConfig.class);
 
         this.contexts.clear();
         for (ApiContextConfig context : this.permissionConfig.getContexts())
-            System.out.println("ctx: " + this.getContext(context.getName()).getContextName());
+            log.debug("Registering api-context {}", this.getContext(context.getName()).getContextName());
     }
 
     public ApiFieldResolverContext getUserContext( )

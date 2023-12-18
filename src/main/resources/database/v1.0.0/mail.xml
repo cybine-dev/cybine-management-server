@@ -270,6 +270,7 @@
         </createView>
 
         <insert tableName="action_metadata">
+            <column name="id">UUID()</column>
             <column name="namespace">cybine-management-mail</column>
             <column name="category">domain</column>
             <column name="name">creation</column>

@@ -39,16 +39,16 @@ public class MetadataService
 
     public Optional<ActionMetadata> fetchById(ActionMetadataId id)
     {
-        DatasourceConditionDetail<Long> idEquals = DatasourceHelper.isEqual(ID, id.getValue());
+        DatasourceConditionDetail<UUID> idEquals = DatasourceHelper.isEqual(ID, id.getValue());
         DatasourceConditionInfo condition = DatasourceHelper.and(idEquals);
 
         return this.service.fetchSingle(DatasourceQuery.builder().condition(condition).build());
     }
 
-    public Optional<ActionMetadata> fetchByCorrelationId(UUID correlationId)
+    public Optional<ActionMetadata> fetchByCorrelationId(String correlationId)
     {
         DatasourceConditionDetail<String> correlationIdEquals = DatasourceHelper.isEqual(
-                ActionContextEntity_.CORRELATION_ID, correlationId.toString());
+                ActionContextEntity_.CORRELATION_ID, correlationId);
 
         DatasourceConditionInfo condition = DatasourceHelper.and(correlationIdEquals);
         DatasourceRelationInfo contextRelation = DatasourceRelationInfo.builder()

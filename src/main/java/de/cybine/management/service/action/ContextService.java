@@ -38,16 +38,15 @@ public class ContextService
 
     public Optional<ActionContext> fetchById(ActionContextId id)
     {
-        DatasourceConditionDetail<Long> idEquals = DatasourceHelper.isEqual(ID, id.getValue());
+        DatasourceConditionDetail<UUID> idEquals = DatasourceHelper.isEqual(ID, id.getValue());
         DatasourceConditionInfo condition = DatasourceHelper.and(idEquals);
 
         return this.service.fetchSingle(DatasourceQuery.builder().condition(condition).build());
     }
 
-    public Optional<ActionContext> fetchByCorrelationId(UUID correlationId)
+    public Optional<ActionContext> fetchByCorrelationId(String correlationId)
     {
-        DatasourceConditionDetail<String> correlationIdEquals = DatasourceHelper.isEqual(CORRELATION_ID,
-                correlationId.toString());
+        DatasourceConditionDetail<String> correlationIdEquals = DatasourceHelper.isEqual(CORRELATION_ID, correlationId);
         DatasourceConditionInfo condition = DatasourceHelper.and(correlationIdEquals);
 
         return this.service.fetchSingle(DatasourceQuery.builder().condition(condition).build());

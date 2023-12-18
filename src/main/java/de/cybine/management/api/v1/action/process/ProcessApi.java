@@ -4,6 +4,7 @@ import de.cybine.management.data.action.process.*;
 import de.cybine.management.util.api.query.*;
 import de.cybine.management.util.api.response.*;
 import de.cybine.management.util.cloudevent.*;
+import io.quarkus.security.*;
 import jakarta.validation.*;
 import jakarta.validation.constraints.*;
 import jakarta.ws.rs.Path;
@@ -14,6 +15,7 @@ import org.jboss.resteasy.reactive.*;
 
 import java.util.*;
 
+@Authenticated
 @Path("/api/v1/action/process")
 @Tag(name = "ActionProcess Resource")
 @Produces(MediaType.APPLICATION_JSON)
@@ -22,25 +24,25 @@ public interface ProcessApi
 {
     @GET
     @Path("/find/id/{id}")
-    RestResponse<ApiResponse<ActionProcess>> fetchById(@PathParam("id") @Min(1) long id);
+    RestResponse<ApiResponse<ActionProcess>> fetchById(@PathParam("id") UUID id);
 
     @GET
     @Path("/find/event-id/{event-id}")
-    RestResponse<ApiResponse<ActionProcess>> fetchByEventId(@PathParam("event-id") UUID eventId);
+    RestResponse<ApiResponse<ActionProcess>> fetchByEventId(@PathParam("event-id") String eventId);
 
     @GET
     @Path("/find/correlation-id/{correlation-id}")
     RestResponse<ApiResponse<List<ActionProcess>>> fetchByCorrelationId(
-            @PathParam("correlation-id") UUID correlationId);
+            @PathParam("correlation-id") String correlationId);
 
     @GET
     @Path("/cloud-event/event-id/{event-id}")
-    RestResponse<ApiResponse<CloudEvent>> fetchCloudEventByEventId(@PathParam("event-id") UUID eventId);
+    RestResponse<ApiResponse<CloudEvent>> fetchCloudEventByEventId(@PathParam("event-id") String eventId);
 
     @GET
     @Path("/cloud-event/correlation-id/{correlation-id}")
     RestResponse<ApiResponse<List<CloudEvent>>> fetchCloudEventsByCorrelationId(
-            @PathParam("correlation-id") UUID correlationId);
+            @PathParam("correlation-id") String correlationId);
 
     @POST
     RestResponse<ApiResponse<List<ActionProcess>>> fetch(@Valid @NotNull ApiQuery query);

@@ -47,24 +47,24 @@ public class ProcessService
 
     public Optional<ActionProcess> fetchById(ActionProcessId id)
     {
-        DatasourceConditionDetail<Long> idEquals = DatasourceHelper.isEqual(ID, id.getValue());
+        DatasourceConditionDetail<UUID> idEquals = DatasourceHelper.isEqual(ID, id.getValue());
         DatasourceConditionInfo condition = DatasourceHelper.and(idEquals);
 
         return this.service.fetchSingle(DatasourceQuery.builder().condition(condition).build());
     }
 
-    public Optional<ActionProcess> fetchByEventId(UUID eventId)
+    public Optional<ActionProcess> fetchByEventId(String eventId)
     {
-        DatasourceConditionDetail<String> idEquals = DatasourceHelper.isEqual(EVENT_ID, eventId.toString());
+        DatasourceConditionDetail<String> idEquals = DatasourceHelper.isEqual(EVENT_ID, eventId);
         DatasourceConditionInfo condition = DatasourceHelper.and(idEquals);
 
         return this.service.fetchSingle(DatasourceQuery.builder().condition(condition).build());
     }
 
-    public List<ActionProcess> fetchByCorrelationId(UUID correlationId)
+    public List<ActionProcess> fetchByCorrelationId(String correlationId)
     {
         DatasourceConditionDetail<String> correlationIdEquals = DatasourceHelper.isEqual(
-                ActionContextEntity_.CORRELATION_ID, correlationId.toString());
+                ActionContextEntity_.CORRELATION_ID, correlationId);
         DatasourceConditionInfo condition = DatasourceHelper.and(correlationIdEquals);
 
         DatasourceRelationInfo contextRelation = DatasourceRelationInfo.builder()
@@ -95,9 +95,9 @@ public class ProcessService
         return this.service.fetchTotal(query);
     }
 
-    public Optional<CloudEvent> fetchAsCloudEventByEventId(UUID eventId)
+    public Optional<CloudEvent> fetchAsCloudEventByEventId(String eventId)
     {
-        DatasourceConditionDetail<String> idEquals = DatasourceHelper.isEqual(EVENT_ID, eventId.toString());
+        DatasourceConditionDetail<String> idEquals = DatasourceHelper.isEqual(EVENT_ID, eventId);
         DatasourceConditionInfo condition = DatasourceHelper.and(idEquals);
 
         DatasourceRelationInfo metadataRelation = DatasourceHelper.fetch(ActionContextEntity_.METADATA);
@@ -113,10 +113,10 @@ public class ProcessService
                            .map(ConversionResult::result);
     }
 
-    public List<CloudEvent> fetchAsCloudEventsByCorrelationId(UUID correlationId)
+    public List<CloudEvent> fetchAsCloudEventsByCorrelationId(String correlationId)
     {
         DatasourceConditionDetail<String> idEquals = DatasourceHelper.isEqual(ActionContextEntity_.CORRELATION_ID,
-                correlationId.toString());
+                correlationId);
         DatasourceConditionInfo condition = DatasourceHelper.and(idEquals);
 
         DatasourceRelationInfo metadataRelation = DatasourceHelper.fetch(ActionContextEntity_.METADATA);

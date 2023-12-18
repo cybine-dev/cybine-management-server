@@ -4,17 +4,20 @@ import de.cybine.management.data.action.context.*;
 import de.cybine.management.data.action.metadata.*;
 import de.cybine.management.data.action.process.*;
 import de.cybine.management.exception.action.*;
+import de.cybine.management.util.*;
 import de.cybine.management.util.converter.*;
 import de.cybine.management.util.datasource.*;
 import io.quarkus.runtime.*;
 import jakarta.enterprise.context.*;
 import jakarta.ws.rs.core.*;
 import lombok.*;
+import lombok.extern.slf4j.*;
 import org.hibernate.*;
 
 import java.time.*;
 import java.util.*;
 
+@Slf4j
 @Startup
 @ApplicationScoped
 @RequiredArgsConstructor
@@ -44,6 +47,7 @@ public class ActionService
 
         ConverterTree converterTree = ConverterTree.create();
         ActionContext context = ActionContext.builder()
+                                             .id(ActionContextId.create())
                                              .metadata(metadata)
                                              .itemId(contextMetadata.getItemId().orElse(null))
                                              .build();
@@ -57,9 +61,11 @@ public class ActionService
             transaction.begin();
 
             session.persist(entity);
+            session.flush();
 
             ActionContextId contextId = ActionContextId.of(entity.getId());
             ActionProcess process = ActionProcess.builder()
+                                                 .id(ActionProcessId.create())
                                                  .context(ActionContext.builder().id(contextId).build())
                                                  .status(BaseActionProcessStatus.INITIALIZED.getName())
                                                  .creatorId(this.getIdentityName().orElse(null))
@@ -103,7 +109,60 @@ public class ActionService
                                                  .build());
     }
 
-    @SuppressWarnings("unchecked")
+    public void bulkProcess(List<ActionProcessMetadata> states, boolean ignorePreconditionErrors)
+    {
+        if (states == null || states.isEmpty())
+            return;
+
+        ActionProcessMetadata nextState = states.get(0);
+        ActionProcess state = this.fetchCurrentState(nextState.getContextId()).orElse(null);
+        if (state == null)
+            throw new UnknownActionStateException(
+                    "Could not find action-state for context-id " + nextState.getContextId().getValue());
+
+        ActionContext context = this.contextService.fetchById(nextState.getContextId()).orElseThrow();
+        ActionMetadata metadata = this.metadataService.fetchById(context.getMetadataId()).orElseThrow();
+
+        try (Session session = this.sessionFactory.openSession())
+        {
+            Transaction transaction = session.beginTransaction();
+
+            log.debug("Started processing bulk-action... [ns({}) cat({}) name({})]", metadata.getNamespace(),
+                    metadata.getCategory(), metadata.getName());
+
+            long counter = 0;
+            ActionProcess currentState = state;
+            for (ActionProcessMetadata processMetadata : states)
+            {
+                try
+                {
+                    currentState = this.$process(processMetadata, currentState, metadata).first();
+                    if (++counter % 250 == 0)
+                    {
+                        log.debug("Processed {} actions [ns({}) cat({}) name({})]", counter, metadata.getNamespace(),
+                                metadata.getCategory(), metadata.getName());
+
+                        session.flush();
+                        session.clear();
+                    }
+                }
+                catch (ActionPreconditionException exception)
+                {
+                    if (!ignorePreconditionErrors)
+                        throw exception;
+                }
+            }
+
+            log.debug("Committing bulk-action... [ns({}) cat({}) name({})]", metadata.getNamespace(),
+                    metadata.getCategory(), metadata.getName());
+
+            transaction.commit();
+
+            log.debug("Finished processing bulk-action. [ns({}) cat({}) name({})]", metadata.getNamespace(),
+                    metadata.getCategory(), metadata.getName());
+        }
+    }
+
     public <T> T process(ActionProcessMetadata nextState)
     {
         try (Session session = this.sessionFactory.openSession())
@@ -117,49 +176,59 @@ public class ActionService
 
             ActionContext context = this.contextService.fetchById(nextState.getContextId()).orElseThrow();
             ActionMetadata metadata = this.metadataService.fetchById(context.getMetadataId()).orElseThrow();
-            ActionProcessorMetadata processorMetadata = ActionProcessorMetadata.builder()
-                                                                               .namespace(metadata.getNamespace())
-                                                                               .category(metadata.getCategory())
-                                                                               .name(metadata.getName())
-                                                                               .fromStatus(state.getStatus())
-                                                                               .toStatus(nextState.getStatus())
-                                                                               .build();
 
-            ActionProcessor<?> processor = this.processorRegistry.findProcessor(processorMetadata).orElse(null);
-            if (processor == null)
-                throw new UnknownActionException("Unknown action " + processorMetadata.asString());
-
-            ActionStateTransition transition = ActionStateTransition.builder()
-                                                                    .service(this)
-                                                                    .previousState(state)
-                                                                    .nextState(nextState)
-                                                                    .build();
-
-            if (!processor.shouldExecute(transition))
-                throw new ActionPreconditionException(null);
-
-            ActionContextId contextId = ActionContextId.of(nextState.getContextId().getValue());
-            ActionProcess process = ActionProcess.builder()
-                                                 .context(ActionContext.builder().id(contextId).build())
-                                                 .status(nextState.getStatus())
-                                                 .priority(nextState.getPriority().orElse(100))
-                                                 .description(nextState.getDescription().orElse(null))
-                                                 .creatorId(this.getIdentityName().orElse(null))
-                                                 .createdAt(nextState.getCreatedAt())
-                                                 .dueAt(nextState.getDueAt().orElse(null))
-                                                 .data(nextState.getData().orElse(null))
-                                                 .build();
-
-            session.persist(this.converterRegistry.getProcessor(ActionProcess.class, ActionProcessEntity.class)
-                                                  .toItem(process)
-                                                  .result());
-
-            T result = (T) processor.process(transition);
+            T result = this.<T>$process(nextState, state, metadata).second();
 
             transaction.commit();
 
             return result;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> BiTuple<ActionProcess, T> $process(ActionProcessMetadata nextState, ActionProcess currentState,
+            ActionMetadata metadata)
+    {
+        ActionProcessorMetadata processorMetadata = ActionProcessorMetadata.builder()
+                                                                           .namespace(metadata.getNamespace())
+                                                                           .category(metadata.getCategory())
+                                                                           .name(metadata.getName())
+                                                                           .fromStatus(currentState.getStatus())
+                                                                           .toStatus(nextState.getStatus())
+                                                                           .build();
+
+        ActionProcessor<?> processor = this.processorRegistry.findProcessor(processorMetadata).orElse(null);
+        if (processor == null)
+            throw new UnknownActionException("Unknown action " + processorMetadata.asString());
+
+        ActionStateTransition transition = ActionStateTransition.builder()
+                                                                .service(this)
+                                                                .previousState(currentState)
+                                                                .nextState(nextState)
+                                                                .build();
+
+        if (!processor.shouldExecute(transition))
+            throw new ActionPreconditionException(null);
+
+        ActionContextId contextId = ActionContextId.of(nextState.getContextId().getValue());
+        ActionProcess process = ActionProcess.builder()
+                                             .id(ActionProcessId.create())
+                                             .context(ActionContext.builder().id(contextId).build())
+                                             .status(nextState.getStatus())
+                                             .priority(nextState.getPriority().orElse(100))
+                                             .description(nextState.getDescription().orElse(null))
+                                             .creatorId(this.getIdentityName().orElse(null))
+                                             .createdAt(nextState.getCreatedAt())
+                                             .dueAt(nextState.getDueAt().orElse(null))
+                                             .data(nextState.getData().orElse(null))
+                                             .build();
+
+        Session session = this.sessionFactory.getCurrentSession();
+        session.persist(this.converterRegistry.getProcessor(ActionProcess.class, ActionProcessEntity.class)
+                                              .toItem(process)
+                                              .result());
+
+        return new BiTuple<>(process, (T) processor.process(transition));
     }
 
     public Optional<ActionMetadata> fetchMetadata(ActionContextMetadata context)
@@ -240,7 +309,7 @@ public class ActionService
 
     public Optional<ActionProcess> fetchCurrentState(ActionContextId contextId)
     {
-        DatasourceConditionDetail<Long> contextIdEquals = DatasourceHelper.isEqual(ActionProcessEntity_.CONTEXT_ID,
+        DatasourceConditionDetail<UUID> contextIdEquals = DatasourceHelper.isEqual(ActionProcessEntity_.CONTEXT_ID,
                 contextId.getValue());
 
         DatasourceConditionInfo condition = DatasourceHelper.and(contextIdEquals);
@@ -261,10 +330,10 @@ public class ActionService
                           .map(ConversionResult::result);
     }
 
-    public Optional<ActionProcess> fetchCurrentState(UUID correlationId)
+    public Optional<ActionProcess> fetchCurrentState(String correlationId)
     {
         DatasourceConditionDetail<String> correlationIdEquals = DatasourceHelper.isEqual(
-                ActionContextEntity_.CORRELATION_ID, correlationId.toString());
+                ActionContextEntity_.CORRELATION_ID, correlationId);
 
         DatasourceConditionInfo condition = DatasourceHelper.and(correlationIdEquals);
         DatasourceRelationInfo contextRelation = DatasourceRelationInfo.builder()
@@ -288,7 +357,7 @@ public class ActionService
                           .map(ConversionResult::result);
     }
 
-    public List<String> fetchAvailableActions(UUID correlationId)
+    public List<String> fetchAvailableActions(String correlationId)
     {
         ActionProcess process = this.fetchCurrentState(correlationId).orElseThrow();
         ActionMetadata metadata = this.metadataService.fetchByCorrelationId(correlationId).orElseThrow();
@@ -297,11 +366,11 @@ public class ActionService
                 metadata.getName(), process.getStatus());
     }
 
-    private Optional<String> getIdentityName()
+    private Optional<String> getIdentityName( )
     {
         try
         {
-            if(this.securityContext.getUserPrincipal() == null)
+            if (this.securityContext.getUserPrincipal() == null)
                 return Optional.empty();
 
             return Optional.ofNullable(this.securityContext.getUserPrincipal().getName());

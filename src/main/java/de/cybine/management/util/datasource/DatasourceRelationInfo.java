@@ -42,7 +42,7 @@ public class DatasourceRelationInfo
         Path<?> path = parent.get(this.property);
         List<Path<Object>> groupings = new ArrayList<>();
         for (String groupBy : this.groupingProperties)
-            groupings.add(DatasourceFieldPath.resolvePath(parent, groupBy));
+            groupings.add(DatasourceFieldPath.resolvePath(path, groupBy));
 
         for (DatasourceRelationInfo relation : this.relations)
             groupings.addAll(relation.getAllGroupings(path));

@@ -1,6 +1,7 @@
 package de.cybine.management.data.action.metadata;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.*;
 import de.cybine.management.data.action.context.*;
 import de.cybine.management.util.*;
 import lombok.*;
@@ -20,6 +21,7 @@ public class ActionMetadata implements Serializable, WithId<ActionMetadataId>
     private static final long serialVersionUID = 1L;
 
     @JsonProperty("id")
+    @JsonDeserialize(using = ActionMetadataId.Deserializer.class)
     private final ActionMetadataId id;
 
     @JsonProperty("namespace")

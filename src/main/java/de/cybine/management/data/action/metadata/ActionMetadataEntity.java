@@ -14,15 +14,14 @@ import java.util.*;
 @Table(name = ActionMetadataEntity_.TABLE)
 @Entity(name = ActionMetadataEntity_.ENTITY)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ActionMetadataEntity implements Serializable, WithId<Long>
+public class ActionMetadataEntity implements Serializable, WithId<UUID>
 {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = ActionMetadataEntity_.ID_COLUMN, nullable = false, unique = true)
-    private Long id;
+    private UUID id;
 
     @Column(name = ActionMetadataEntity_.NAMESPACE_COLUMN, nullable = false)
     private String namespace;

@@ -3,6 +3,7 @@ package de.cybine.management.api.v1.action.context;
 import de.cybine.management.data.action.context.*;
 import de.cybine.management.util.api.query.*;
 import de.cybine.management.util.api.response.*;
+import io.quarkus.security.*;
 import jakarta.validation.*;
 import jakarta.validation.constraints.*;
 import jakarta.ws.rs.Path;
@@ -13,6 +14,7 @@ import org.jboss.resteasy.reactive.*;
 
 import java.util.*;
 
+@Authenticated
 @Path("/api/v1/action/context")
 @Tag(name = "ActionContext Resource")
 @Produces(MediaType.APPLICATION_JSON)
@@ -21,11 +23,11 @@ public interface ContextApi
 {
     @GET
     @Path("/find/id/{id}")
-    RestResponse<ApiResponse<ActionContext>> fetchById(@PathParam("id") @Min(1) long id);
+    RestResponse<ApiResponse<ActionContext>> fetchById(@PathParam("id") UUID id);
 
     @GET
     @Path("/find/correlation-id/{correlation-id}")
-    RestResponse<ApiResponse<ActionContext>> fetchByCorrelationId(@PathParam("correlation-id") UUID correlationId);
+    RestResponse<ApiResponse<ActionContext>> fetchByCorrelationId(@PathParam("correlation-id") String correlationId);
 
     @POST
     RestResponse<ApiResponse<List<ActionContext>>> fetch(@Valid @NotNull ApiQuery query);

@@ -3,6 +3,7 @@ package de.cybine.management.api.v1.mail.user;
 import de.cybine.management.data.mail.user.*;
 import de.cybine.management.util.api.query.*;
 import de.cybine.management.util.api.response.*;
+import io.quarkus.security.*;
 import jakarta.validation.*;
 import jakarta.validation.constraints.*;
 import jakarta.ws.rs.Path;
@@ -13,6 +14,7 @@ import org.jboss.resteasy.reactive.*;
 
 import java.util.*;
 
+@Authenticated
 @Path("/api/v1/mail/user")
 @Tag(name = "MailUser Resource")
 @Produces(MediaType.APPLICATION_JSON)

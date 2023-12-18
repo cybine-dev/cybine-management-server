@@ -16,21 +16,20 @@ import java.util.*;
 @Table(name = ActionProcessEntity_.TABLE)
 @Entity(name = ActionProcessEntity_.ENTITY)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ActionProcessEntity implements Serializable, WithId<Long>
+public class ActionProcessEntity implements Serializable, WithId<UUID>
 {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = ActionProcessEntity_.ID_COLUMN, nullable = false, unique = true)
-    private Long id;
+    private UUID id;
 
     @Column(name = ActionProcessEntity_.EVENT_ID_COLUMN, nullable = false, unique = true)
     private String eventId;
 
     @Column(name = ActionProcessEntity_.CONTEXT_ID_COLUMN, nullable = false, insertable = false, updatable = false)
-    private Long contextId;
+    private UUID contextId;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = ActionProcessEntity_.CONTEXT_ID_COLUMN, nullable = false)

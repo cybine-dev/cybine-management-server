@@ -12,11 +12,14 @@ import java.util.*;
 @RequestScoped
 public class ApiPaginationInfo
 {
+    @JsonProperty("size")
     private Integer size;
 
+    @JsonProperty("offset")
     private Integer offset;
 
     @Accessors(fluent = true)
+    @JsonProperty("include_total")
     private boolean includeTotal = false;
 
     @JsonProperty("total")

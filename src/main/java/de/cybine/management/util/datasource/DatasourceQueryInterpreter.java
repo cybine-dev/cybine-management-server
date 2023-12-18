@@ -204,6 +204,7 @@ public class DatasourceQueryInterpreter<T>
         selection.add(criteriaBuilder.count(root));
         selection.addAll(grouping);
 
+        // FIXME: For multi-level data-query the grouping must be on primary-element id
         query.multiselect(selection)
              .where(this.query.getConditions(criteriaBuilder, root).toArray(Predicate[]::new))
              .groupBy(new ArrayList<>(grouping));

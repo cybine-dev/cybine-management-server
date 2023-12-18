@@ -2,6 +2,8 @@ package de.cybine.management.service.action;
 
 import lombok.*;
 
+import java.util.*;
+
 @Data
 @Builder(builderClassName = "Generator")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -13,6 +15,11 @@ public class ActionProcessorMetadata
 
     private final String fromStatus;
     private final String toStatus;
+
+    public Optional<String> getFromStatus( )
+    {
+        return Optional.ofNullable(this.fromStatus);
+    }
 
     public String asString( )
     {

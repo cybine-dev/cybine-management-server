@@ -4,12 +4,14 @@ import de.cybine.management.data.action.metadata.*;
 import de.cybine.management.service.action.*;
 import de.cybine.management.util.api.query.*;
 import de.cybine.management.util.api.response.*;
+import io.quarkus.security.*;
 import jakarta.enterprise.context.*;
 import lombok.*;
 import org.jboss.resteasy.reactive.*;
 
 import java.util.*;
 
+@Authenticated
 @ApplicationScoped
 @RequiredArgsConstructor
 public class MetadataResource implements MetadataApi
@@ -17,7 +19,7 @@ public class MetadataResource implements MetadataApi
     private final MetadataService service;
 
     @Override
-    public RestResponse<ApiResponse<ActionMetadata>> fetchById(long id)
+    public RestResponse<ApiResponse<ActionMetadata>> fetchById(UUID id)
     {
         return ApiResponse.<ActionMetadata>builder()
                           .value(this.service.fetchById(ActionMetadataId.of(id)).orElseThrow())

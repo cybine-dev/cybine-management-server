@@ -6,6 +6,7 @@ import jakarta.persistence.metamodel.*;
 import lombok.experimental.*;
 
 import java.time.*;
+import java.util.*;
 
 @UtilityClass
 @SuppressWarnings("unused")
@@ -28,11 +29,11 @@ public class ActionProcessEntity_
 
     // @formatter:off
     public static final DatasourceField ID          =
-            DatasourceField.property(ActionProcessEntity.class, "id", Long.class);
+            DatasourceField.property(ActionProcessEntity.class, "id", UUID.class);
     public static final DatasourceField EVENT_ID    =
             DatasourceField.property(ActionProcessEntity.class, "eventId", String.class);
     public static final DatasourceField CONTEXT_ID  =
-            DatasourceField.property(ActionProcessEntity.class, "contextId", Long.class);
+            DatasourceField.property(ActionProcessEntity.class, "contextId", UUID.class);
     public static final DatasourceField CONTEXT     =
             DatasourceField.property(ActionProcessEntity.class, "context", ActionContextEntity.class);
     public static final DatasourceField STATUS      =
@@ -53,9 +54,9 @@ public class ActionProcessEntity_
 
     public static final String CONTEXT_RELATION = "context";
 
-    public static volatile SingularAttribute<ActionContextEntity, Long>                id;
+    public static volatile SingularAttribute<ActionContextEntity, UUID>                id;
     public static volatile SingularAttribute<ActionContextEntity, String>              eventId;
-    public static volatile SingularAttribute<ActionContextEntity, Long>                contextId;
+    public static volatile SingularAttribute<ActionContextEntity, UUID>                contextId;
     public static volatile SingularAttribute<ActionContextEntity, ActionContextEntity> context;
     public static volatile SingularAttribute<ActionContextEntity, String>              status;
     public static volatile SingularAttribute<ActionContextEntity, Integer>             priority;

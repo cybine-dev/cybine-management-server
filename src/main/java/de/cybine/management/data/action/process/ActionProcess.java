@@ -1,6 +1,7 @@
 package de.cybine.management.data.action.process;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.*;
 import de.cybine.management.data.action.context.*;
 import de.cybine.management.data.util.*;
 import de.cybine.management.service.action.data.*;
@@ -22,6 +23,7 @@ public class ActionProcess implements Serializable, WithId<ActionProcessId>
     private static final long serialVersionUID = 1L;
 
     @JsonProperty("id")
+    @JsonDeserialize(using = ActionProcessId.Deserializer.class)
     private final ActionProcessId id;
 
     @Builder.Default

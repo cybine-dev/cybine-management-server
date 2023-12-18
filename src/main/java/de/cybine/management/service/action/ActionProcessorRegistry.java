@@ -39,9 +39,13 @@ public class ActionProcessorRegistry
     @SuppressWarnings("unchecked")
     public <T> Optional<ActionProcessor<T>> findProcessor(ActionProcessorMetadata metadata)
     {
-        log.debug("Searching action-processor: {}", metadata.asString());
+        log.trace("Searching action-processor: {}", metadata.asString());
 
-        return Optional.ofNullable((ActionProcessor<T>) this.processors.get(metadata));
+        ActionProcessor<?> actionProcessor = this.processors.get(metadata);
+        if (actionProcessor != null)
+            return Optional.of((ActionProcessor<T>) actionProcessor);
+
+        return Optional.ofNullable((ActionProcessor<T>) this.processors.get(this.getWildcardMetadata(metadata)));
     }
 
     public List<String> getPossibleActions(String namespace, String category, String name, String status)
@@ -51,8 +55,20 @@ public class ActionProcessorRegistry
                               .filter(metadata -> metadata.getNamespace().equals(namespace))
                               .filter(metadata -> metadata.getCategory().equals(category))
                               .filter(metadata -> metadata.getName().equals(name))
-                              .filter(metadata -> metadata.getFromStatus().equals(status))
+                              .filter(metadata -> metadata.getFromStatus()
+                                                          .map(item -> item.equals(status))
+                                                          .orElse(true))
                               .map(ActionProcessorMetadata::getToStatus)
                               .toList();
+    }
+
+    private ActionProcessorMetadata getWildcardMetadata(ActionProcessorMetadata metadata)
+    {
+        return ActionProcessorMetadata.builder()
+                                      .namespace(metadata.getNamespace())
+                                      .category(metadata.getCategory())
+                                      .name(metadata.getName())
+                                      .toStatus(metadata.getToStatus())
+                                      .build();
     }
 }

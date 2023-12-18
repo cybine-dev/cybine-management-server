@@ -8,6 +8,7 @@ import de.cybine.management.exception.action.*;
 import de.cybine.management.service.action.*;
 import de.cybine.management.service.action.data.*;
 import de.cybine.management.util.api.response.*;
+import io.quarkus.security.*;
 import jakarta.enterprise.context.*;
 import lombok.*;
 import org.jboss.resteasy.reactive.*;
@@ -15,6 +16,7 @@ import org.jboss.resteasy.reactive.*;
 import java.time.*;
 import java.util.*;
 
+@Authenticated
 @ApplicationScoped
 @RequiredArgsConstructor
 public class HandleResource implements HandleApi
@@ -45,7 +47,7 @@ public class HandleResource implements HandleApi
     }
 
     @Override
-    public RestResponse<ApiResponse<Void>> terminate(UUID correlationId)
+    public RestResponse<ApiResponse<Void>> terminate(String correlationId)
     {
         ActionContext context = this.contextService.fetchByCorrelationId(correlationId).orElseThrow();
         this.actionService.terminateContext(context.getId());
@@ -54,12 +56,12 @@ public class HandleResource implements HandleApi
     }
 
     @Override
-    public RestResponse<ApiResponse<ActionProcess>> process(UUID correlationId, UUID eventId, String action,
+    public RestResponse<ApiResponse<ActionProcess>> process(String correlationId, String eventId, String action,
             Map<String, Object> data)
     {
         ActionContext context = this.contextService.fetchByCorrelationId(correlationId).orElseThrow();
         ActionProcess currentState = this.actionService.fetchCurrentState(context.getId()).orElseThrow();
-        if (eventId != null && !Objects.equals(currentState.getEventId(), eventId.toString()))
+        if (eventId != null && !Objects.equals(currentState.getEventId(), eventId))
             return ApiResponse.<ActionProcess>builder().status(RestResponse.Status.CONFLICT).build().toResponse();
 
         ActionData<?> actionData = null;
@@ -98,7 +100,7 @@ public class HandleResource implements HandleApi
     }
 
     @Override
-    public RestResponse<ApiResponse<List<String>>> fetchAvailableActions(UUID correlationId)
+    public RestResponse<ApiResponse<List<String>>> fetchAvailableActions(String correlationId)
     {
         return ApiResponse.<List<String>>builder()
                           .value(this.actionService.fetchAvailableActions(correlationId))

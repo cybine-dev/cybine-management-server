@@ -40,7 +40,7 @@ public class ConverterConfig
         this.registry.addConverter(new ApiOrderInfoConverter());
         this.registry.addConverter(new ApiOptionQueryConverter());
         this.registry.addConverter(new ApiPaginationInfoConverter());
-        this.registry.addConverter(new ApiRelationInfoConverter());
+        this.registry.addConverter(new ApiRelationInfoConverter(this.applicationConfig));
         this.registry.addEntityMapper(new CountInfoMapper());
 
         this.registry.addEntityMapper(new ActionContextMapper());

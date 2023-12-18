@@ -22,9 +22,9 @@ public class ActionContextEntity_
 
     // @formatter:off
     public static final DatasourceField ID        =
-            DatasourceField.property(ActionContextEntity.class, "id", Long.class);
+            DatasourceField.property(ActionContextEntity.class, "id", UUID.class);
     public static final DatasourceField METADATA_ID =
-            DatasourceField.property(ActionContextEntity.class, "metadataId", Long.class);
+            DatasourceField.property(ActionContextEntity.class, "metadataId", UUID.class);
     public static final DatasourceField METADATA   =
             DatasourceField.property(ActionContextEntity.class, "metadata", ActionMetadataEntity.class);
     public static final DatasourceField CORRELATION_ID =
@@ -37,10 +37,10 @@ public class ActionContextEntity_
 
     public static final String METADATA_RELATION = "metadata";
 
-    public static volatile SingularAttribute<ActionContextEntity, Long>                 id;
-    public static volatile SingularAttribute<ActionContextEntity, Long>                 metadataId;
+    public static volatile SingularAttribute<ActionContextEntity, UUID>                 id;
+    public static volatile SingularAttribute<ActionContextEntity, UUID>                 metadataId;
     public static volatile SingularAttribute<ActionContextEntity, ActionMetadataEntity> metadata;
-    public static volatile SingularAttribute<ActionContextEntity, UUID>                 correlationId;
+    public static volatile SingularAttribute<ActionContextEntity, String>               correlationId;
     public static volatile SingularAttribute<ActionContextEntity, String>               itemId;
     public static volatile SetAttribute<ActionContextEntity, ActionProcessEntity>       processes;
 }

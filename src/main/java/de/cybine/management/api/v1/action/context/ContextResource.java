@@ -4,12 +4,14 @@ import de.cybine.management.data.action.context.*;
 import de.cybine.management.service.action.*;
 import de.cybine.management.util.api.query.*;
 import de.cybine.management.util.api.response.*;
+import io.quarkus.security.*;
 import jakarta.enterprise.context.*;
 import lombok.*;
 import org.jboss.resteasy.reactive.*;
 
 import java.util.*;
 
+@Authenticated
 @ApplicationScoped
 @RequiredArgsConstructor
 public class ContextResource implements ContextApi
@@ -17,7 +19,7 @@ public class ContextResource implements ContextApi
     private final ContextService service;
 
     @Override
-    public RestResponse<ApiResponse<ActionContext>> fetchById(long id)
+    public RestResponse<ApiResponse<ActionContext>> fetchById(UUID id)
     {
         return ApiResponse.<ActionContext>builder()
                           .value(this.service.fetchById(ActionContextId.of(id)).orElseThrow())
@@ -26,7 +28,7 @@ public class ContextResource implements ContextApi
     }
 
     @Override
-    public RestResponse<ApiResponse<ActionContext>> fetchByCorrelationId(UUID correlationId)
+    public RestResponse<ApiResponse<ActionContext>> fetchByCorrelationId(String correlationId)
     {
         return ApiResponse.<ActionContext>builder()
                           .value(this.service.fetchByCorrelationId(correlationId).orElseThrow())

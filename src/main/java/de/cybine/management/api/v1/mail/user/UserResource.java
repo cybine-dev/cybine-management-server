@@ -4,12 +4,14 @@ import de.cybine.management.data.mail.user.*;
 import de.cybine.management.service.mail.*;
 import de.cybine.management.util.api.query.*;
 import de.cybine.management.util.api.response.*;
+import io.quarkus.security.*;
 import jakarta.enterprise.context.*;
 import lombok.*;
 import org.jboss.resteasy.reactive.*;
 
 import java.util.*;
 
+@Authenticated
 @ApplicationScoped
 @RequiredArgsConstructor
 public class UserResource implements UserApi

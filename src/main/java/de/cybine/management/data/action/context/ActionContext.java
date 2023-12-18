@@ -1,6 +1,7 @@
 package de.cybine.management.data.action.context;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.*;
 import de.cybine.management.data.action.metadata.*;
 import de.cybine.management.data.action.process.*;
 import de.cybine.management.data.util.*;
@@ -22,6 +23,7 @@ public class ActionContext implements Serializable, WithId<ActionContextId>
     private static final long serialVersionUID = 1L;
 
     @JsonProperty("id")
+    @JsonDeserialize(using = ActionContextId.Deserializer.class)
     private final ActionContextId id;
 
     @JsonProperty("metadata_id")

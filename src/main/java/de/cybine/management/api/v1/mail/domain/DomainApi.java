@@ -15,11 +15,11 @@ import org.jboss.resteasy.reactive.*;
 
 import java.util.*;
 
+@Authenticated
 @Path("/api/v1/mail/domain")
 @Tag(name = "MailDomain Resource")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@Authenticated
 public interface DomainApi
 {
     @POST
