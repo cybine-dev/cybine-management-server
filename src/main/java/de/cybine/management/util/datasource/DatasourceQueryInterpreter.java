@@ -210,8 +210,11 @@ public class DatasourceQueryInterpreter<T>
         Root<T> root = query.from(this.type);
 
         query.select(criteriaBuilder.count(root))
-             .where(this.query.getConditions(criteriaBuilder, root).toArray(Predicate[]::new))
-             .groupBy(properties.stream().map(root::get).collect(Collectors.toList()));
+             .where(this.query.getConditions(criteriaBuilder, root).toArray(Predicate[]::new));
+
+        String idFieldName = this.findIdField().map(Field::getName).orElse(null);
+        if (!properties.isEmpty() && (idFieldName == null || !properties.contains(idFieldName)))
+            query.groupBy(properties.stream().map(root::get).collect(Collectors.toList()));
 
         TypedQuery<Long> typedQuery = this.entityManager.createQuery(query);
         parameters.forEach(parameter -> typedQuery.setParameter(parameter.first(), parameter.second()));
